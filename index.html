@@ -213,7 +213,7 @@ tbody tr:hover td { background: var(--blue-pale); }
     <a class="nav-item" onclick="showPage('sponsors')" id="nav-sponsors"><i class="ti ti-building"></i> Sponsors</a>
     <a class="nav-item" onclick="showPage('projects')" id="nav-projects"><i class="ti ti-folder-open"></i> Projects</a>
     <a class="nav-item" onclick="showPage('investigators')" id="nav-investigators"><i class="ti ti-user-md"></i> Investigators</a>
-    <a class="nav-item"><i class="ti ti-certificate"></i> IRB/IEC</a>
+    <a class="nav-item" onclick="showPage('irb')" id="nav-irb"><i class="ti ti-certificate"></i> IRB/IEC</a>
     <a class="nav-item"><i class="ti ti-chart-bar"></i> Reports</a>
 
     <div class="sidebar-section" style="margin-top:.5rem">Tools & Utils</div>
@@ -706,6 +706,51 @@ tbody tr:hover td { background: var(--blue-pale); }
     </div>
   </div><!-- /investigators -->
 
+  <!-- ─── IRB/IEC PAGE ─── -->
+  <div id="page-irb" class="content" style="display:none">
+    <div class="content-header">
+      <div>
+        <div class="content-title">IRB/IEC</div>
+        <div class="content-sub" id="irb-count-sub">Loading...</div>
+      </div>
+      <button class="btn-primary-action" onclick="openAddIRB()"><i class="ti ti-plus"></i> Add New</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="sponsor-toolbar">
+      <div class="sponsor-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="irb-search-input" placeholder="Search by name, chairperson, contact, institution, city, or country..." oninput="filterIRB()">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="irb-country-filter" onchange="filterIRB()" class="filter-select">
+          <option value="">All Countries</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="chart-card" style="padding:0;overflow:hidden">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="padding:12px 16px" onclick="sortIRB('name')" class="th-sort">IRB/IEC Name <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortIRB('chairperson')" class="th-sort">IRB/IEC Chairperson <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px">Contact Person</th>
+            <th style="padding:12px 16px" onclick="sortIRB('institution')" class="th-sort">Institution <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortIRB('city')" class="th-sort">City <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortIRB('country')" class="th-sort">Country <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+          </tr></thead>
+          <tbody id="irb-tbody"></tbody>
+        </table>
+      </div>
+      <div id="irb-empty" style="display:none;text-align:center;padding:3rem;color:var(--text3)">
+        <i class="ti ti-certificate-off" style="font-size:40px;display:block;margin-bottom:.75rem"></i>
+        <div style="font-size:14px">No IRB/IEC records found</div>
+      </div>
+    </div>
+  </div><!-- /irb -->
+
 </div><!-- /main -->
 
 <!-- ─── ADD SPONSOR MODAL ─── -->
@@ -856,19 +901,51 @@ tbody tr:hover td { background: var(--blue-pale); }
   </div>
 </div>
 
+<!-- ─── ADD IRB/IEC MODAL ─── -->
+<div id="irb-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:2rem;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div style="font-size:16px;font-weight:600" id="irb-modal-title">Add New IRB/IEC</div>
+      <button onclick="closeIRBModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);padding:4px"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>IRB/IEC Name *</label><input id="im2-name" placeholder="e.g. Western IRB"></div>
+      <div class="field-modal"><label>IRB/IEC Chairperson</label><input id="im2-chairperson" placeholder="e.g. Dr. Angela Foster"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Contact Person</label><input id="im2-contact" placeholder="e.g. John Kim"></div>
+      <div class="field-modal"><label>Institution</label><input id="im2-institution" placeholder="e.g. Western IRB"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>City</label><input id="im2-city" placeholder="e.g. Baltimore"></div>
+      <div class="field-modal"><label>Country</label><input id="im2-country" placeholder="e.g. United States"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Email</label><input id="im2-email" type="email" placeholder="irb@institution.com"></div>
+      <div class="field-modal"><label>Phone</label><input id="im2-phone" placeholder="+1-000-000-0000"></div>
+    </div>
+    <div id="irb-modal-error" style="display:none;margin-top:.75rem;padding:.75rem 1rem;background:var(--red-light);border-radius:var(--radius-sm);font-size:13px;color:var(--red)"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem">
+      <button onclick="closeIRBModal()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);cursor:pointer">Cancel</button>
+      <button onclick="saveIRBRecord()" class="btn-primary-action" id="irb-modal-save-btn"><i class="ti ti-device-floppy"></i> Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // Today's date
 document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
 // ─── PAGE SWITCHING ───────────────────────────────────────
 function showPage(page) {
-  ['dashboard','sponsors','projects','investigators'].forEach(p => {
+  ['dashboard','sponsors','projects','investigators','irb'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
   });
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   if (page === 'sponsors')      { document.getElementById('nav-sponsors').classList.add('active'); renderSponsors(); }
   if (page === 'projects')      { document.getElementById('nav-projects').classList.add('active'); renderProjects(); }
   if (page === 'investigators') { document.getElementById('nav-investigators').classList.add('active'); renderInvestigators(); }
+  if (page === 'irb')           { document.getElementById('nav-irb').classList.add('active'); renderIRB(); }
 }
 
 // ─── PROJECT DATA ─────────────────────────────────────────
@@ -1467,6 +1544,102 @@ function deleteInvestigator(id) {
 }
 
 document.getElementById('inv-modal').addEventListener('click', function(e) { if(e.target===this) closeInvModal(); });
+
+// ─── IRB/IEC DATA ─────────────────────────────────────────
+let irbList = JSON.parse(localStorage.getItem('ctms_irb') || 'null') || [
+  { id:1, name:'Western IRB (WIRB)', chairperson:'Dr. Angela Foster', contact:'John Kim', institution:'Western IRB', city:'Puyallup', country:'United States', email:'jkim@wirb.com', phone:'+1-360-252-2500' },
+  { id:2, name:'Johns Hopkins IRB', chairperson:'Dr. Richard Kass', contact:'Sarah Lee', institution:'Johns Hopkins University', city:'Baltimore', country:'United States', email:'sarah.lee@jhu.edu', phone:'+1-410-516-0000' },
+  { id:3, name:'Seoul National University IRB', chairperson:'Dr. Kim Hyun-Soo', contact:'Park Ji-Young', institution:'Seoul National University Hospital', city:'Seoul', country:'South Korea', email:'irb@snuh.org', phone:'+82-2-2072-0000' },
+  { id:4, name:'Comitato Etico Parma', chairperson:'Prof. Luigi Ferri', contact:'Maria Rossi', institution:'Università di Parma', city:'Parma', country:'Italy', email:'comitato.etico@unipr.it', phone:'+39-0521-033-000' },
+];
+function saveIRB() { localStorage.setItem('ctms_irb', JSON.stringify(irbList)); }
+
+let irbSortCol = 'name', irbSortAsc = true, irbEditId = null;
+
+function sortIRB(col) {
+  if (irbSortCol === col) irbSortAsc = !irbSortAsc; else { irbSortCol = col; irbSortAsc = true; }
+  renderIRB();
+}
+function filterIRB() { renderIRB(); }
+
+function renderIRB() {
+  const q = (document.getElementById('irb-search-input').value||'').toLowerCase();
+  const coFilter = document.getElementById('irb-country-filter').value;
+
+  const cntrs = [...new Set(irbList.map(i=>i.country).filter(Boolean))].sort();
+  const cf = document.getElementById('irb-country-filter');
+  const prev = cf.value;
+  cf.innerHTML = '<option value="">All Countries</option>' + cntrs.map(c=>`<option value="${c}" ${c===prev?'selected':''}>${c}</option>`).join('');
+
+  let filtered = irbList.filter(i => {
+    const match = !q || [i.name,i.chairperson,i.contact,i.institution,i.city,i.country].some(v=>(v||'').toLowerCase().includes(q));
+    const coMatch = !coFilter || i.country === coFilter;
+    return match && coMatch;
+  });
+
+  filtered.sort((a,b) => {
+    const av = (a[irbSortCol]||'').toLowerCase();
+    const bv = (b[irbSortCol]||'').toLowerCase();
+    return irbSortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  document.getElementById('irb-count-sub').textContent = `${irbList.length} IRB/IEC records total · ${filtered.length} shown`;
+  const tbody = document.getElementById('irb-tbody');
+  const empty = document.getElementById('irb-empty');
+
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(i => `<tr>
+    <td style="padding:11px 16px;font-weight:600;font-size:13px">${escHtml(i.name)}</td>
+    <td style="padding:11px 16px;font-size:13px;color:var(--text2)">${escHtml(i.chairperson)||'—'}</td>
+    <td style="padding:11px 16px;font-size:13px;color:var(--text2)">${escHtml(i.contact)||'—'}</td>
+    <td style="padding:11px 16px;font-size:13px">${escHtml(i.institution)||'—'}</td>
+    <td style="padding:11px 16px;font-size:13px;color:var(--text2)">${escHtml(i.city)||'—'}</td>
+    <td style="padding:11px 16px">
+      <div style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2)">
+        <i class="ti ti-map-pin" style="font-size:13px;color:var(--text3)"></i>
+        ${escHtml(i.country)||'—'}
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+function openAddIRB() {
+  irbEditId = null;
+  document.getElementById('irb-modal-title').textContent = 'Add New IRB/IEC';
+  ['im2-name','im2-chairperson','im2-contact','im2-institution','im2-city','im2-country','im2-email','im2-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('irb-modal-error').style.display='none';
+  document.getElementById('irb-modal-save-btn').innerHTML='<i class="ti ti-device-floppy"></i> Save';
+  document.getElementById('irb-modal').style.display='flex';
+}
+
+function closeIRBModal() { document.getElementById('irb-modal').style.display='none'; }
+
+function saveIRBRecord() {
+  const name = document.getElementById('im2-name').value.trim();
+  const errEl = document.getElementById('irb-modal-error');
+  if (!name) { errEl.textContent='IRB/IEC Name is required.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const data = {
+    name,
+    chairperson: document.getElementById('im2-chairperson').value.trim(),
+    contact:     document.getElementById('im2-contact').value.trim(),
+    institution: document.getElementById('im2-institution').value.trim(),
+    city:        document.getElementById('im2-city').value.trim(),
+    country:     document.getElementById('im2-country').value.trim(),
+    email:       document.getElementById('im2-email').value.trim(),
+    phone:       document.getElementById('im2-phone').value.trim(),
+  };
+  if (irbEditId) {
+    const idx = irbList.findIndex(x=>x.id===irbEditId);
+    if (idx !== -1) irbList[idx] = { ...irbList[idx], ...data };
+  } else {
+    irbList.push({ id: Date.now(), ...data });
+  }
+  saveIRB(); closeIRBModal(); renderIRB();
+}
+
+document.getElementById('irb-modal').addEventListener('click', function(e) { if(e.target===this) closeIRBModal(); });
 </script>
 </body>
 </html>
