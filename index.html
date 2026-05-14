@@ -76,8 +76,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .topbar-search { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 13px; color: var(--text3); cursor: pointer; width: 200px; }
 
 /* ── CONTENT ── */
-.content { padding: 1.5rem 1.75rem 4rem; flex: 1; }
-.content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.content { padding: 1rem 1.5rem 3rem; flex: 1; }
+.content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .content-title { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
 .content-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
 .date-filter { display: flex; align-items: center; gap: 6px; }
@@ -89,7 +89,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
 .kpi-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 1.25rem; box-shadow: var(--shadow); position: relative; overflow: hidden;
+  padding: .875rem 1rem; box-shadow: var(--shadow); position: relative; overflow: hidden;
 }
 .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius) var(--radius) 0 0; }
 .kpi-card.blue::before { background: var(--blue); }
@@ -100,7 +100,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .kpi-card.red::before { background: var(--red); }
 .kpi-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .kpi-label i { font-size: 14px; }
-.kpi-val { font-size: 28px; font-weight: 700; letter-spacing: -.03em; color: var(--text); font-family: 'DM Mono', monospace; }
+.kpi-val { font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: var(--text); font-family: 'DM Mono', monospace; }
 .kpi-sub { font-size: 12px; color: var(--text3); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
 .kpi-delta { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 99px; }
 .kpi-delta.up { background: var(--green-light); color: var(--green); }
@@ -196,6 +196,25 @@ tbody tr:hover td { background: var(--blue-pale); }
 .action-btn { background:none;border:none;cursor:pointer;padding:5px;border-radius:6px;color:var(--text3);font-size:16px;transition:background .12s,color .12s; }
 .action-btn:hover { background:var(--surface2);color:var(--text); }
 .action-btn.del:hover { background:var(--red-light);color:var(--red); }
+
+/* ── PROJECT DETAIL ── */
+.det-cat-section { font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:8px 12px 4px;background:var(--surface2);border-bottom:1px solid var(--border2); }
+.det-cat-item { display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .1s; }
+.det-cat-item:last-child { border-bottom:none; }
+.det-cat-item:hover { background:var(--surface2); }
+.det-cat-item.active { background:var(--blue-light); }
+.det-cat-name { font-size:13px;font-weight:400;color:var(--text); }
+.det-cat-item.active .det-cat-name { color:var(--blue);font-weight:500; }
+.det-cat-badge { font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;flex-shrink:0; }
+.det-badge-num { background:var(--surface2);color:var(--text2); }
+.det-cat-none { font-size:11px;color:var(--text3); }
+.det-info-row { display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--border2);gap:8px; }
+.det-info-row:last-child { border-bottom:none;padding-bottom:0; }
+.det-info-key { font-size:12px;color:var(--text2); }
+.det-info-val { font-size:12px;font-weight:500;color:var(--text);text-align:right; }
+.det-content-title { font-size:14px;font-weight:600;color:var(--text);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border2); }
+.det-empty-state { text-align:center;padding:3rem 1rem;color:var(--text3); }
+.det-empty-state p { font-size:13px; }
 </style>
 </head>
 <body>
@@ -273,8 +292,8 @@ tbody tr:hover td { background: var(--blue-pale); }
       </div>
     </div>
 
-    <!-- KPI CARDS -->
-    <div class="kpi-grid">
+    <!-- KPI CARDS : 4개로 압축 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.875rem;margin-bottom:1rem">
       <div class="kpi-card blue">
         <div class="kpi-label"><i class="ti ti-folder-open"></i> Active Projects</div>
         <div class="kpi-val">24</div>
@@ -288,258 +307,104 @@ tbody tr:hover td { background: var(--blue-pale); }
       <div class="kpi-card amber">
         <div class="kpi-label"><i class="ti ti-circle-check"></i> Collected YTD</div>
         <div class="kpi-val">$2.8M</div>
-        <div class="kpi-sub" style="color:var(--text2)">67% of total contract value</div>
-      </div>
-      <div class="kpi-card purple">
-        <div class="kpi-label"><i class="ti ti-clock-hour-4"></i> Hours Logged</div>
-        <div class="kpi-val">8,340h</div>
-        <div class="kpi-sub"><span class="kpi-delta up">+8%</span> vs last quarter</div>
-      </div>
-      <div class="kpi-card teal">
-        <div class="kpi-label"><i class="ti ti-building"></i> Active Sponsors</div>
-        <div class="kpi-val">18</div>
-        <div class="kpi-sub" style="color:var(--text2)">6 new this year</div>
-      </div>
-      <div class="kpi-card amber">
-        <div class="kpi-label"><i class="ti ti-send"></i> Submissions YTD</div>
-        <div class="kpi-val">12</div>
-        <div class="kpi-sub" style="color:var(--text2)">3 FDA · 9 Pre-Sub</div>
+        <div class="kpi-sub" style="color:var(--text2)">67% of total value</div>
       </div>
       <div class="kpi-card red">
         <div class="kpi-label"><i class="ti ti-alert-circle"></i> Overdue Milestones</div>
         <div class="kpi-val">5</div>
         <div class="kpi-sub"><span class="kpi-delta down">+2</span> vs last month</div>
       </div>
-      <div class="kpi-card blue">
-        <div class="kpi-label"><i class="ti ti-users"></i> Team Members</div>
-        <div class="kpi-val">31</div>
-        <div class="kpi-sub" style="color:var(--text2)">Across 6 departments</div>
+    </div>
+
+    <!-- CHARTS ROW : 3컬럼 한 줄 -->
+    <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:.875rem;margin-bottom:1rem">
+      <div class="chart-card" style="padding:1rem">
+        <div class="chart-header" style="margin-bottom:.75rem">
+          <div><div class="chart-title">Revenue by Sponsor</div></div>
+          <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> All</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-sponsor" height="150"></canvas></div>
+      </div>
+      <div class="chart-card" style="padding:1rem">
+        <div class="chart-header" style="margin-bottom:.75rem">
+          <div><div class="chart-title">Projects by Phase</div></div>
+        </div>
+        <div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chart-phase" height="150" width="150"></canvas></div>
+      </div>
+      <div class="chart-card" style="padding:1rem">
+        <div class="chart-header" style="margin-bottom:.75rem">
+          <div><div class="chart-title">Hours by Dept.</div></div>
+        </div>
+        <div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chart-dept" height="150" width="150"></canvas></div>
       </div>
     </div>
 
-    <!-- CHARTS ROW 1 -->
-    <div class="chart-grid-3">
-      <!-- Revenue by Sponsor -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Revenue by Sponsor</div>
-            <div class="chart-sub">Top 6 sponsors by contract value</div>
-          </div>
-          <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> View all</button>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-sponsor" height="200"></canvas></div>
-      </div>
-
-      <!-- Projects by Phase -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Projects by Phase</div>
-            <div class="chart-sub">Current distribution</div>
-          </div>
-        </div>
-        <div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chart-phase" height="200" width="200"></canvas></div>
-      </div>
-
-      <!-- Hours by Department -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Hours by Department</div>
-            <div class="chart-sub">YTD logged hours</div>
-          </div>
-        </div>
-        <div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chart-dept" height="200" width="200"></canvas></div>
-      </div>
-    </div>
-
-    <!-- CHARTS ROW 2 -->
-    <div class="chart-grid">
-      <!-- Monthly Revenue Trend -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Monthly Collection vs Contract</div>
-            <div class="chart-sub">Billed vs collected 2026 YTD</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-revenue" height="180"></canvas></div>
-      </div>
-
-      <!-- Milestone Payment Status -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Milestone Payment Status</div>
-            <div class="chart-sub">All active projects</div>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="chart-milestone-status" height="180"></canvas></div>
-      </div>
-    </div>
-
-    <!-- BOTTOM ROW -->
-    <div class="chart-grid">
+    <!-- BOTTOM ROW : 스폰서 테이블 + 우측 마일스톤 -->
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:.875rem">
       <!-- Sponsor Table -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div>
-            <div class="chart-title">Active Sponsors</div>
-            <div class="chart-sub">Project status & financials</div>
-          </div>
-          <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> View all</button>
+      <div class="chart-card" style="padding:1rem">
+        <div class="chart-header" style="margin-bottom:.75rem">
+          <div><div class="chart-title">Active Sponsors</div></div>
+          <button class="chart-action" onclick="showPage('sponsors')"><i class="ti ti-external-link" style="font-size:12px"></i> View all</button>
         </div>
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Sponsor</th><th>Phase</th><th>Status</th><th>Contract</th><th>Collected</th><th>Progress</th>
+              <th>Sponsor</th><th>Status</th><th>Contract</th><th>Collected</th><th>Progress</th>
             </tr></thead>
             <tbody>
               <tr>
                 <td><div class="sponsor-name">BNPLAB / Osstem Vascular</div><div class="sponsor-study">CENTUM – FDA Pre-Sub</div></td>
-                <td><span class="badge badge-purple">Pre-Sub</span></td>
                 <td><span class="badge badge-active">Active</span></td>
-                <td class="mono">$50,000</td>
-                <td class="mono">$25,500</td>
+                <td class="mono">$50,000</td><td class="mono">$25,500</td>
                 <td><div class="prog-bar"><div class="prog-fill" style="width:51%;background:var(--green-mid)"></div></div></td>
               </tr>
               <tr>
-                <td><div class="sponsor-name">Absology Co., Ltd.</div><div class="sponsor-study">Phase I/II – VitD Test Kit</div></td>
-                <td><span class="badge badge-blue">Phase I/II</span></td>
+                <td><div class="sponsor-name">Absology Co., Ltd.</div><div class="sponsor-study">Phase I/II – VitD</div></td>
                 <td><span class="badge badge-active">Active</span></td>
-                <td class="mono">$145,500</td>
-                <td class="mono">$75,500</td>
+                <td class="mono">$145,500</td><td class="mono">$75,500</td>
                 <td><div class="prog-bar"><div class="prog-fill" style="width:52%;background:var(--blue-mid)"></div></div></td>
               </tr>
               <tr>
-                <td><div class="sponsor-name">Epygenix Therapeutics</div><div class="sponsor-study">DEE – Phase III NDA</div></td>
-                <td><span class="badge badge-purple">Phase III</span></td>
+                <td><div class="sponsor-name">Epygenix Therapeutics</div><div class="sponsor-study">Phase III NDA</div></td>
                 <td><span class="badge badge-active">Active</span></td>
-                <td class="mono">$320,000</td>
-                <td class="mono">$280,000</td>
+                <td class="mono">$320,000</td><td class="mono">$280,000</td>
                 <td><div class="prog-bar"><div class="prog-fill" style="width:87%;background:var(--green-mid)"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="sponsor-name">Target Health Inc.</div><div class="sponsor-study">Internal – eStudio Dev</div></td>
-                <td><span class="badge" style="background:var(--surface2);color:var(--text3)">Internal</span></td>
-                <td><span class="badge badge-active">Active</span></td>
-                <td class="mono">$—</td>
-                <td class="mono">$—</td>
-                <td><div class="prog-bar"><div class="prog-fill" style="width:60%;background:var(--blue-mid)"></div></div></td>
-              </tr>
-              <tr>
-                <td><div class="sponsor-name">DiaMedica Therapeutics</div><div class="sponsor-study">DM-199 – Phase II IND</div></td>
-                <td><span class="badge badge-blue">Phase II</span></td>
-                <td><span class="badge badge-pending">On hold</span></td>
-                <td class="mono">$95,000</td>
-                <td class="mono">$60,000</td>
-                <td><div class="prog-bar"><div class="prog-fill" style="width:63%;background:var(--amber)"></div></div></td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Right column: Upcoming Milestones + Activity -->
-      <div style="display:flex;flex-direction:column;gap:1rem">
-
-        <!-- Upcoming Milestones -->
-        <div class="chart-card">
-          <div class="chart-header">
-            <div>
-              <div class="chart-title">Upcoming Milestones</div>
-              <div class="chart-sub">Due in next 60 days</div>
-            </div>
-            <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> All</button>
+      <!-- Upcoming Milestones -->
+      <div class="chart-card" style="padding:1rem">
+        <div class="chart-header" style="margin-bottom:.75rem">
+          <div><div class="chart-title">Upcoming Milestones</div><div class="chart-sub">Due in next 60 days</div></div>
+        </div>
+        <div class="ms-list">
+          <div class="ms-item">
+            <div class="ms-dot" style="background:#E07A00"></div>
+            <div class="ms-info"><div class="ms-name">IND submission to FDA</div><div class="ms-sponsor">Absology Co., Ltd.</div></div>
+            <div style="text-align:right"><div class="ms-amount">$30,000</div><div class="ms-date">May 30</div></div>
           </div>
-          <div class="ms-list">
-            <div class="ms-item">
-              <div class="ms-dot" style="background:#E07A00"></div>
-              <div class="ms-info">
-                <div class="ms-name">IND submission to FDA</div>
-                <div class="ms-sponsor">Absology Co., Ltd.</div>
-              </div>
-              <div style="text-align:right">
-                <div class="ms-amount">$30,000</div>
-                <div class="ms-date">May 30, 2026</div>
-              </div>
-            </div>
-            <div class="ms-item">
-              <div class="ms-dot" style="background:var(--red)"></div>
-              <div class="ms-info">
-                <div class="ms-name">Q-Submission Package</div>
-                <div class="ms-sponsor">BNPLAB / Osstem</div>
-              </div>
-              <div style="text-align:right">
-                <div class="ms-amount">$12,500</div>
-                <div class="ms-date">Jun 3, 2026 <span style="color:var(--red);font-weight:600"> Overdue</span></div>
-              </div>
-            </div>
-            <div class="ms-item">
-              <div class="ms-dot" style="background:var(--green-mid)"></div>
-              <div class="ms-info">
-                <div class="ms-name">Phase II Interim Analysis</div>
-                <div class="ms-sponsor">DiaMedica Therapeutics</div>
-              </div>
-              <div style="text-align:right">
-                <div class="ms-amount">$18,000</div>
-                <div class="ms-date">Jun 15, 2026</div>
-              </div>
-            </div>
-            <div class="ms-item">
-              <div class="ms-dot" style="background:var(--blue-mid)"></div>
-              <div class="ms-info">
-                <div class="ms-name">NDA Filing – Final Package</div>
-                <div class="ms-sponsor">Epygenix Therapeutics</div>
-              </div>
-              <div style="text-align:right">
-                <div class="ms-amount">$40,000</div>
-                <div class="ms-date">Jul 1, 2026</div>
-              </div>
-            </div>
+          <div class="ms-item">
+            <div class="ms-dot" style="background:var(--red)"></div>
+            <div class="ms-info"><div class="ms-name">Q-Submission Package</div><div class="ms-sponsor">BNPLAB / Osstem</div></div>
+            <div style="text-align:right"><div class="ms-amount">$12,500</div><div class="ms-date" style="color:var(--red);font-weight:600">Overdue</div></div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot" style="background:var(--green-mid)"></div>
+            <div class="ms-info"><div class="ms-name">Phase II Interim Analysis</div><div class="ms-sponsor">DiaMedica</div></div>
+            <div style="text-align:right"><div class="ms-amount">$18,000</div><div class="ms-date">Jun 15</div></div>
+          </div>
+          <div class="ms-item">
+            <div class="ms-dot" style="background:var(--blue-mid)"></div>
+            <div class="ms-info"><div class="ms-name">NDA Filing – Final</div><div class="ms-sponsor">Epygenix</div></div>
+            <div style="text-align:right"><div class="ms-amount">$40,000</div><div class="ms-date">Jul 1</div></div>
           </div>
         </div>
-
-        <!-- Recent Activity -->
-        <div class="chart-card">
-          <div class="chart-header">
-            <div><div class="chart-title">Recent Activity</div></div>
-          </div>
-          <div class="activity-list">
-            <div class="activity-item">
-              <div class="activity-icon" style="background:var(--green-light);color:var(--green)"><i class="ti ti-circle-check"></i></div>
-              <div>
-                <div class="activity-text"><strong>Milestone paid</strong> – At signing · Absology Co.</div>
-                <div class="activity-time">2 hours ago</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon" style="background:var(--blue-light);color:var(--blue)"><i class="ti ti-file-plus"></i></div>
-              <div>
-                <div class="activity-text"><strong>New proposal saved</strong> – BNPLAB / Osstem Vascular</div>
-                <div class="activity-time">Yesterday, 3:42 PM</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon" style="background:var(--amber-light);color:var(--amber)"><i class="ti ti-alert-triangle"></i></div>
-              <div>
-                <div class="activity-text"><strong>Milestone overdue</strong> – Q-Submission Package · BNPLAB</div>
-                <div class="activity-time">2 days ago</div>
-              </div>
-            </div>
-            <div class="activity-item">
-              <div class="activity-icon" style="background:var(--purple-light);color:var(--purple)"><i class="ti ti-send"></i></div>
-              <div>
-                <div class="activity-text"><strong>FDA submission</strong> – Pre-Sub request filed · Absology</div>
-                <div class="activity-time">3 days ago</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
+    </div><!-- /bottom row -->
 
   </div><!-- /content dashboard -->
 
@@ -657,6 +522,68 @@ tbody tr:hover td { background: var(--blue-pale); }
       </div>
     </div>
   </div><!-- /projects -->
+
+  <!-- ─── PROJECT DETAIL PAGE ─── -->
+  <div id="page-project-detail" class="content" style="display:none">
+
+    <!-- 뒤로가기 -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+      <button onclick="showPage('projects')" style="display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer">
+        <i class="ti ti-arrow-left"></i> Back to Projects
+      </button>
+      <div style="font-size:12px;color:var(--text3)">Projects <i class="ti ti-chevron-right" style="font-size:11px;vertical-align:-1px"></i> <span id="det-breadcrumb" style="color:var(--text2);font-weight:500"></span></div>
+    </div>
+
+    <!-- 프로젝트 헤더 -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border2)">
+      <div>
+        <div id="det-pid" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--blue);background:var(--blue-light);padding:3px 9px;border-radius:99px;display:inline-block;margin-bottom:5px"></div>
+        <div id="det-sponsor" style="font-size:17px;font-weight:600;color:var(--text)"></div>
+        <div id="det-desc" style="font-size:12px;color:var(--text2);margin-top:3px"></div>
+        <div style="display:flex;gap:14px;margin-top:6px;flex-wrap:wrap" id="det-meta-row"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0" id="det-pills"></div>
+    </div>
+
+    <!-- 핵심 메트릭 4개 -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem" id="det-metrics"></div>
+
+    <!-- 바디: 카테고리 목록 + 콘텐츠 -->
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:start">
+
+      <!-- 왼쪽 탭 목록 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div class="det-cat-section">Project</div>
+        <div class="det-cat-item active" onclick="switchDetCat(this,'info')"><span class="det-cat-name">Project Info</span><span class="det-cat-badge det-badge-num" id="badge-info">OK</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'inv-product')"><span class="det-cat-name">Inv. Product</span><span class="det-cat-badge det-badge-num" id="badge-inv-product">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'project-plan')"><span class="det-cat-name">Project Plan</span><span class="det-cat-badge det-badge-num" id="badge-project-plan">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'project-team')"><span class="det-cat-name">Project Team</span><span class="det-cat-badge det-badge-num" id="badge-project-team">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'site-list')"><span class="det-cat-name">Site List</span><span class="det-cat-none">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'pending-users')"><span class="det-cat-name">Pending Users</span><span class="det-cat-none">—</span></div>
+
+        <div class="det-cat-section">Finance</div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'rate-card')"><span class="det-cat-name">Rate Card</span><span class="det-cat-badge det-badge-num" id="badge-rate-card">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'milestones')"><span class="det-cat-name">Payment Milestones</span><span class="det-cat-badge det-badge-num" id="badge-milestones">—</span></div>
+
+        <div class="det-cat-section">Documents</div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'essential-docs')"><span class="det-cat-name">Essential Documents</span><span class="det-cat-none">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'deliverables')"><span class="det-cat-name">Deliverables</span><span class="det-cat-none">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'reg-submissions')"><span class="det-cat-name">Regulatory Submissions</span><span class="det-cat-none">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'job-codes')"><span class="det-cat-name">Job Codes</span><span class="det-cat-badge det-badge-num" id="badge-job-codes">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'reports')"><span class="det-cat-name">Reports</span><span class="det-cat-none">—</span></div>
+
+        <div class="det-cat-section">Logs</div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'decision-log')"><span class="det-cat-name">Decision Log</span><span class="det-cat-none">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'meeting-log')"><span class="det-cat-name">Meeting Log</span><span class="det-cat-none">—</span></div>
+        <div class="det-cat-item" onclick="switchDetCat(this,'monitoring')"><span class="det-cat-name">Monitoring Visits</span><span class="det-cat-none">—</span></div>
+      </div>
+
+      <!-- 오른쪽 콘텐츠 -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;min-height:320px" id="det-cat-content">
+        <div style="font-size:13px;color:var(--text3);text-align:center;padding:3rem">Select a category</div>
+      </div>
+    </div>
+  </div><!-- /project-detail -->
 
   <!-- ─── INVESTIGATORS PAGE ─── -->
   <div id="page-investigators" class="content" style="display:none">
@@ -938,7 +865,7 @@ document.getElementById('today-date').textContent = new Date().toLocaleDateStrin
 
 // ─── PAGE SWITCHING ───────────────────────────────────────
 function showPage(page) {
-  ['dashboard','sponsors','projects','investigators','irb'].forEach(p => {
+  ['dashboard','sponsors','projects','project-detail','investigators','irb'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
   });
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -946,7 +873,173 @@ function showPage(page) {
   if (page === 'projects')      { document.getElementById('nav-projects').classList.add('active'); renderProjects(); }
   if (page === 'investigators') { document.getElementById('nav-investigators').classList.add('active'); renderInvestigators(); }
   if (page === 'irb')           { document.getElementById('nav-irb').classList.add('active'); renderIRB(); }
+  if (page === 'projects' || page === 'project-detail') { document.getElementById('nav-projects').classList.add('active'); }
 }
+
+function openProjectDetail(id) {
+  const p = projects.find(x => x.id === id); if (!p) return;
+
+  // 헤더
+  document.getElementById('det-breadcrumb').textContent = p.pid;
+  document.getElementById('det-pid').textContent = p.pid;
+  document.getElementById('det-sponsor').textContent = p.sponsor || '—';
+  document.getElementById('det-desc').textContent = p.desc || '—';
+
+  // meta row
+  const start = p.startDate ? new Date(p.startDate+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short'}) : '—';
+  const end   = p.endDate   ? new Date(p.endDate  +'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short'}) : '—';
+  document.getElementById('det-meta-row').innerHTML = `
+    <span style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px"><i class="ti ti-calendar" style="font-size:12px"></i>${start} – ${end}</span>
+    <span style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px"><i class="ti ti-package" style="font-size:12px"></i>${p.invProduct||'—'}</span>
+    <span style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px"><i class="ti ti-hash" style="font-size:12px"></i>${p.internalNo||'—'}</span>`;
+
+  // status pills
+  const ss = STATUS_STYLES[p.status] || { bg:'var(--gray-light)', color:'var(--gray)', dot:'var(--gray)' };
+  document.getElementById('det-pills').innerHTML = `
+    <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;background:${ss.bg};color:${ss.color}">
+      <span style="width:6px;height:6px;border-radius:50%;background:${ss.dot}"></span>${p.status}
+    </span>`;
+
+  // 메트릭
+  document.getElementById('det-metrics').innerHTML = `
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Project ID</div>
+      <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--blue)">${p.pid}</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Sponsor No.</div>
+      <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">${p.sponsorNo||'—'}</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Internal No.</div>
+      <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">${p.internalNo||'—'}</div>
+    </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+      <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Department</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text)">${p.dept||'—'}</div>
+    </div>`;
+
+  // 카테고리 프리뷰 업데이트
+  document.getElementById('prev-info').textContent = `${p.pid} · ${p.sponsor||'—'}`;
+  document.getElementById('prev-inv-product').textContent = p.invProduct || 'Not set';
+  document.getElementById('prev-project-plan').textContent = `${start} – ${end}`;
+  document.getElementById('prev-project-team').textContent = p.pm ? `PM: ${p.pm}` : 'Not assigned';
+  document.getElementById('prev-rate-card').textContent = p.dept || '—';
+  document.getElementById('prev-milestones').textContent = 'View milestones';
+  document.getElementById('prev-job-codes').textContent = p.sponsorNo || '—';
+
+  // 배지
+  const setBadge = (id, text, type) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = text; el.className = 'det-cat-badge det-badge-' + type; }
+  };
+  // 배지 업데이트
+  const setBadge = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+  setBadge('badge-info', 'OK');
+  setBadge('badge-inv-product', p.invProduct ? 'OK' : '—');
+  setBadge('badge-project-plan', p.startDate ? 'OK' : '—');
+  setBadge('badge-project-team', p.pm ? '1+' : '—');
+  setBadge('badge-rate-card', '—');
+  setBadge('badge-milestones', '—');
+  setBadge('badge-job-codes', p.sponsorNo ? 'OK' : '—');
+
+  // 첫 탭 활성화
+  document.querySelectorAll('.det-cat-item').forEach(el => el.classList.remove('active'));
+  const firstTab = document.querySelector('#page-project-detail .det-cat-item');
+  if (firstTab) firstTab.classList.add('active');
+  renderDetContent('info', p);
+
+  // 페이지 전환
+  ['dashboard','sponsors','projects','investigators','irb'].forEach(pg => {
+    document.getElementById('page-' + pg).style.display = 'none';
+  });
+  document.getElementById('page-project-detail').style.display = 'block';
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-projects').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // 현재 프로젝트 저장
+  window._currentProject = p;
+}
+
+function switchDetCat(el, key) {
+  document.querySelectorAll('#page-project-detail .det-cat-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  renderDetContent(key, window._currentProject);
+}
+
+function renderDetContent(key, p) {
+  const el = document.getElementById('det-cat-content');
+  const ss = p && STATUS_STYLES[p.status] ? STATUS_STYLES[p.status] : { bg:'var(--gray-light)', color:'var(--gray)', dot:'var(--gray)' };
+
+  const infoRow = (k, v) => `<div class="det-info-row"><span class="det-info-key">${k}</span><span class="det-info-val">${v||'—'}</span></div>`;
+  const emptyState = (icon, label) => `<div class="det-empty-state"><i class="ti ti-${icon}"></i><p>No ${label} yet</p></div>`;
+
+  const contents = {
+    'info': `
+      <div class="det-content-title"><i class="ti ti-info-circle"></i> Project Info</div>
+      ${infoRow('Project ID', `<span style="font-family:'DM Mono',monospace;color:var(--blue)">${p.pid}</span>`)}
+      ${infoRow('Sponsor', p.sponsor)}
+      ${infoRow('Sponsor No.', p.sponsorNo)}
+      ${infoRow('Internal No.', p.internalNo)}
+      ${infoRow('Inv. Product', p.invProduct)}
+      ${infoRow('Status', `<span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;background:${ss.bg};color:${ss.color}">${p.status}</span>`)}
+      ${infoRow('Start date', p.startDate)}
+      ${infoRow('End date', p.endDate)}
+      ${infoRow('Department', p.dept)}
+      ${infoRow('Description', `<span style="color:var(--text2);font-weight:400;font-size:12px">${p.desc||'—'}</span>`)}`,
+
+    'inv-product': `
+      <div class="det-content-title"><i class="ti ti-package"></i> Inv. Product</div>
+      ${infoRow('Product name', p.invProduct)}
+      ${infoRow('Project', p.pid)}
+      ${infoRow('Sponsor', p.sponsor)}`,
+
+    'project-plan': `
+      <div class="det-content-title"><i class="ti ti-calendar-event"></i> Project Plan</div>
+      ${infoRow('Start date', p.startDate)}
+      ${infoRow('End date', p.endDate)}
+      ${infoRow('Status', p.status)}
+      ${infoRow('PM', p.pm||'Not assigned')}`,
+
+    'project-team': `
+      <div class="det-content-title"><i class="ti ti-users"></i> Project Team</div>
+      ${p.pm ? `<div class="det-team-row">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0">${p.pm.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">${p.pm}</div><div style="font-size:11px;color:var(--text3)">Project Manager</div></div>
+        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;background:var(--surface2);color:var(--text2)">PM</span>
+      </div>` : ''}
+      ${p.cra ? `<div class="det-team-row">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0">${p.cra.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">${p.cra}</div><div style="font-size:11px;color:var(--text3)">Lead CRA</div></div>
+        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;background:var(--surface2);color:var(--text2)">SC</span>
+      </div>` : ''}
+      ${!p.pm && !p.cra ? emptyState('users', 'team members assigned') : ''}`,
+
+    'rate-card': emptyState('receipt', 'rate card entries'),
+    'milestones': emptyState('currency-dollar', 'milestones added'),
+    'essential-docs': emptyState('files', 'documents uploaded'),
+    'deliverables': emptyState('package-export', 'deliverables'),
+    'reg-submissions': emptyState('send', 'regulatory submissions'),
+    'job-codes': `
+      <div class="det-content-title"><i class="ti ti-barcode"></i> Job Codes</div>
+      ${p.sponsorNo ? infoRow('Sponsor No.', p.sponsorNo) : ''}
+      ${p.internalNo ? infoRow('Internal No.', p.internalNo) : ''}
+      ${!p.sponsorNo && !p.internalNo ? emptyState('barcode', 'job codes') : ''}`,
+    'reports': emptyState('chart-bar', 'reports generated'),
+    'decision-log': emptyState('checkup-list', 'decisions recorded'),
+    'meeting-log': emptyState('messages', 'meeting logs'),
+    'monitoring': emptyState('stethoscope', 'monitoring visits'),
+    'site-list': emptyState('map-pin', 'sites added'),
+    'pending-users': emptyState('user-plus', 'pending users'),
+  };
+  el.innerHTML = contents[key] || emptyState('file-off', 'records');
+}
+
+function switchDetTab(btn, id) {} // legacy compat
 
 // ─── PROJECT DATA ─────────────────────────────────────────
 const STATUS_STYLES = {
@@ -1026,7 +1119,7 @@ function renderProjects() {
   tbody.innerHTML = filtered.map(p => {
     const ss = STATUS_STYLES[p.status] || { bg:'var(--surface2)', color:'var(--text3)', dot:'var(--text3)' };
     const start = p.startDate ? new Date(p.startDate).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—';
-    return `<tr>
+    return `<tr style="cursor:pointer" onclick="openProjectDetail(${p.id})">
       <td style="padding:11px 16px">
         <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--blue)">${escHtml(p.pid)}</span>
       </td>
@@ -1046,7 +1139,7 @@ function renderProjects() {
           ${p.status}
         </span>
       </td>
-      <td style="padding:11px 16px">
+      <td style="padding:11px 16px" onclick="event.stopPropagation()">
         <div style="display:flex;gap:4px">
           <button class="action-btn" onclick="editProject(${p.id})" title="Edit"><i class="ti ti-edit"></i></button>
           <button class="action-btn del" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
