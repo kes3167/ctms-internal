@@ -3,425 +3,1470 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CTMS — Proposal Workflow</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Target Health CTMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --blue: #185FA5; --blue-mid: #378ADD; --blue-light: #E6F1FB;
-    --green: #3B6D11; --green-light: #EAF3DE; --green-mid: #639922;
-    --amber: #854F0B; --amber-light: #FAEEDA;
-    --red: #A32D2D; --red-light: #FCEBEB;
-    --gray: #5F5E5A; --gray-light: #F1EFE8;
-    --bg: #F5F4F0; --surface: #FFFFFF;
-    --surface2: #F1EFE8; --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.05);
-    --text: #1a1a18; --text2: #6b6b67; --text3: #9b9b96;
-    --radius: 12px; --radius-sm: 8px;
-  }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
-  .nav { position: sticky; top: 0; z-index: 200; background: var(--surface); border-bottom: 1px solid var(--border); height: 56px; display: flex; align-items: center; padding: 0 2rem; gap: 10px; }
-  .nav-logo { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; color: var(--text); cursor: pointer; }
-  .nav-logo-mark { width: 28px; height: 28px; background: var(--blue); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-  .nav-logo-mark i { color: white; font-size: 15px; }
-  .nav-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text3); }
-  .nav-breadcrumb a { color: var(--text2); text-decoration: none; cursor: pointer; }
-  .nav-breadcrumb a:hover { color: var(--text); }
-  .nav-right { margin-left: auto; }
-  .page { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
-  .step-bar { display: flex; align-items: center; margin-bottom: 2.5rem; }
-  .step-item { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text3); white-space: nowrap; }
-  .step-item.active { color: var(--text); font-weight: 500; }
-  .step-item.done { color: var(--green); }
-  .step-num { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--surface); flex-shrink: 0; }
-  .step-item.active .step-num { background: var(--text); color: var(--surface); border-color: var(--text); }
-  .step-item.done .step-num { background: var(--green-light); color: var(--green); border-color: rgba(59,109,17,.2); }
-  .step-line { flex: 1; height: 1px; background: var(--border2); margin: 0 12px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
-  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
-  .card-title i { font-size: 17px; color: var(--blue); }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-  .badge-blue { background: var(--blue-light); color: var(--blue); }
-  .badge-green { background: var(--green-light); color: var(--green); }
-  .field-row { display: grid; gap: 12px; margin-bottom: 14px; }
-  .field-row.col2 { grid-template-columns: 1fr 1fr; }
-  .field-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
-  .field { display: flex; flex-direction: column; gap: 5px; }
-  .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; }
-  .field input, .field textarea, .field select { font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; background: var(--surface); color: var(--text); outline: none; transition: border-color .12s; resize: none; }
-  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.1); }
-  .ms-head { display: grid; grid-template-columns: 2.5fr 1.1fr 1.3fr 36px; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border2); margin-bottom: 4px; }
-  .ms-head span { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
-  .ms-row { display: grid; grid-template-columns: 2.5fr 1.1fr 1.3fr 36px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border2); }
-  .ms-row:last-child { border-bottom: none; }
-  .ms-row input { font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 6px 9px; background: var(--surface); color: var(--text); outline: none; width: 100%; transition: border-color .12s; }
-  .ms-row input:focus { border-color: var(--blue-mid); }
-  .del-btn { width: 30px; height: 30px; border-radius: var(--radius-sm); background: none; border: none; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; transition: background .12s, color .12s; font-size: 16px; }
-  .del-btn:hover { background: var(--red-light); color: var(--red); }
-  .total-row { display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding-top: 14px; border-top: 1px solid var(--border2); margin-top: 8px; }
-  .total-label { font-size: 13px; color: var(--text2); }
-  .total-amount { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
-  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; transition: background .12s; }
-  .btn:hover { background: var(--surface2); }
-  .btn-primary { background: var(--text); color: var(--surface); border-color: var(--text); }
-  .btn-primary:hover { opacity: .88; }
-  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
-  .btn-sm { padding: 5px 13px; font-size: 12px; }
-  .section-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; }
-  .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 1rem; }
-  .metric { background: var(--surface2); border-radius: var(--radius-sm); padding: 1rem 1.25rem; }
-  .metric-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-  .metric-val { font-size: 18px; font-weight: 600; color: var(--text); }
-  .metric-val.mono { font-family: 'DM Mono', monospace; }
-  .review-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border2); }
-  .review-row:last-child { border-bottom: none; }
-  .review-name { font-size: 13px; font-weight: 500; }
-  .review-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .review-amount { font-size: 14px; font-weight: 600; font-family: 'DM Mono', monospace; }
-  .success-banner { background: var(--green-light); border: 1px solid rgba(59,109,17,.15); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
-  .success-banner i { font-size: 22px; color: var(--green); flex-shrink: 0; }
-  .proj-list { display: flex; flex-direction: column; gap: 10px; }
-  .proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; cursor: pointer; transition: box-shadow .15s, transform .1s; display: flex; align-items: center; gap: 1rem; }
-  .proj-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); transform: translateY(-1px); }
-  .proj-card-info { flex: 1; min-width: 0; }
-  .proj-card-title { font-size: 14px; font-weight: 600; }
-  .proj-card-meta { font-size: 12px; color: var(--text2); margin-top: 3px; display: flex; gap: 14px; flex-wrap: wrap; }
-  .proj-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
-  .page-title { font-size: 22px; font-weight: 600; }
-  .page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
-  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text3); }
-  .empty-state i { font-size: 48px; display: block; margin-bottom: 1rem; }
-  .empty-state p { font-size: 14px; margin-bottom: 1.25rem; }
-  .view { display: none; }
-  .view.active { display: block; }
-  @media (max-width: 640px) {
-    .field-row.col2, .field-row.col3 { grid-template-columns: 1fr; }
-    .summary-grid { grid-template-columns: 1fr 1fr; }
-    .step-item span { display: none; }
-    .ms-head, .ms-row { grid-template-columns: 1fr 1fr 36px; }
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue: #185FA5; --blue-mid: #2B7CC9; --blue-light: #E6F1FB; --blue-pale: #F0F7FF;
+  --green: #3B6D11; --green-light: #EAF3DE; --green-mid: #52941A;
+  --amber: #8C5300; --amber-light: #FEF3E2;
+  --red: #A32D2D; --red-light: #FDEDEE;
+  --purple: #5B3FA6; --purple-light: #F0EDFD;
+  --teal: #0F6B5C; --teal-light: #E2F5F1;
+  --bg: #F4F3EF; --surface: #FFFFFF; --surface2: #F0EFE9;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.05);
+  --text: #18181A; --text2: #5C5C5A; --text3: #9A9A96;
+  --nav-w: 220px; --radius: 14px; --radius-sm: 9px;
+  --shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; display: flex; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--nav-w); flex-shrink: 0; background: var(--surface);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; overflow-y: auto;
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 10px; padding: 1.25rem 1.25rem 1rem;
+  font-size: 15px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border);
+  letter-spacing: -.02em;
+}
+.sidebar-logo-mark {
+  width: 30px; height: 30px; background: var(--blue); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sidebar-logo-mark i { color: white; font-size: 16px; }
+.sidebar-section { padding: .75rem .75rem .25rem; font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer;
+  transition: background .12s, color .12s; margin: 1px 4px; text-decoration: none;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--blue-light); color: var(--blue); }
+.nav-item i { font-size: 17px; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--red-light); color: var(--red); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; }
+.sidebar-footer { margin-top: auto; padding: 1rem; border-top: 1px solid var(--border); }
+.user-chip { display: flex; align-items: center; gap: 9px; }
+.user-avatar { width: 30px; height: 30px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.user-role { font-size: 11px; color: var(--text3); }
+
+/* ── MAIN ── */
+.main { margin-left: var(--nav-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  height: 56px; background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 1.75rem; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-size: 16px; font-weight: 600; }
+.topbar-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.topbar-tab { padding: 6px 16px; border-radius: var(--radius-sm); border: none; background: none; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: background .12s, color .12s; }
+.topbar-tab:hover { background: var(--surface2); color: var(--text); }
+.topbar-tab.active { background: var(--blue); color: white; }
+.topbar-btn { width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); transition: background .12s; font-size: 17px; }
+.topbar-btn:hover { background: var(--surface2); }
+.topbar-search { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 13px; color: var(--text3); cursor: pointer; width: 200px; }
+
+/* ── CONTENT ── */
+.content { padding: 1.5rem 1.75rem 4rem; flex: 1; }
+.content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.content-title { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.content-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.date-filter { display: flex; align-items: center; gap: 6px; }
+.filter-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; transition: background .12s; }
+.filter-btn:hover { background: var(--surface2); }
+.filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.25rem; box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius) var(--radius) 0 0; }
+.kpi-card.blue::before { background: var(--blue); }
+.kpi-card.green::before { background: var(--green-mid); }
+.kpi-card.amber::before { background: #E07A00; }
+.kpi-card.purple::before { background: var(--purple); }
+.kpi-card.teal::before { background: var(--teal); }
+.kpi-card.red::before { background: var(--red); }
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.kpi-label i { font-size: 14px; }
+.kpi-val { font-size: 28px; font-weight: 700; letter-spacing: -.03em; color: var(--text); font-family: 'DM Mono', monospace; }
+.kpi-sub { font-size: 12px; color: var(--text3); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+.kpi-delta { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 99px; }
+.kpi-delta.up { background: var(--green-light); color: var(--green); }
+.kpi-delta.down { background: var(--red-light); color: var(--red); }
+
+/* ── CHART GRID ── */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.chart-grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 1.25rem; box-shadow: var(--shadow);
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.chart-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.chart-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.chart-action { font-size: 11px; color: var(--blue-mid); cursor: pointer; display: flex; align-items: center; gap: 4px; background: none; border: none; font-family: inherit; font-weight: 500; }
+.chart-action:hover { text-decoration: underline; }
+.chart-wrap { position: relative; }
+
+/* ── SPONSOR TABLE ── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border2); color: var(--text); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--blue-pale); }
+.sponsor-name { font-weight: 600; }
+.sponsor-study { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+/* ── BADGE ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-active { background: var(--green-light); color: var(--green); }
+.badge-pending { background: var(--amber-light); color: var(--amber); }
+.badge-closed { background: var(--surface2); color: var(--text3); }
+.badge-blue { background: var(--blue-light); color: var(--blue); }
+.badge-purple { background: var(--purple-light); color: var(--purple); }
+
+/* ── PROGRESS ── */
+.prog-bar { height: 5px; background: var(--surface2); border-radius: 99px; overflow: hidden; min-width: 80px; }
+.prog-fill { height: 100%; border-radius: 99px; }
+
+/* ── MILESTONE LIST ── */
+.ms-list { display: flex; flex-direction: column; gap: 0; }
+.ms-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border2); }
+.ms-item:last-child { border-bottom: none; }
+.ms-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.ms-info { flex: 1; min-width: 0; }
+.ms-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-sponsor { font-size: 11px; color: var(--text3); margin-top: 1px; }
+.ms-amount { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; white-space: nowrap; }
+.ms-date { font-size: 11px; color: var(--text3); text-align: right; white-space: nowrap; }
+
+/* ── ACTIVITY ── */
+.activity-list { display: flex; flex-direction: column; gap: 0; }
+.activity-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border2); }
+.activity-item:last-child { border-bottom: none; }
+.activity-icon { width: 30px; height: 30px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.activity-text { font-size: 13px; color: var(--text); flex: 1; }
+.activity-text strong { font-weight: 600; }
+.activity-time { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ── MONO ── */
+.mono { font-family: 'DM Mono', monospace; }
+
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(2,1fr); }
+  .chart-grid-3 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ── SPONSOR PAGE ── */
+.btn-primary-action { display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:none;background:var(--blue);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:white;cursor:pointer;transition:opacity .12s; }
+.btn-primary-action:hover { opacity:.88; }
+.sponsor-toolbar { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap; }
+.sponsor-search { display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;flex:1;min-width:260px; }
+.sponsor-search i { font-size:15px;color:var(--text3);flex-shrink:0; }
+.sponsor-search input { border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:none;width:100%; }
+.sponsor-search input::placeholder { color:var(--text3); }
+.filter-select { font-family:'DM Sans',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;background:var(--surface);color:var(--text2);outline:none;cursor:pointer; }
+.th-sort { cursor:pointer;user-select:none; }
+.th-sort:hover { color:var(--blue); }
+.field-row-modal { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px; }
+.field-modal { display:flex;flex-direction:column;gap:5px; }
+.field-modal label { font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em; }
+.field-modal input, .field-modal select { font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;background:var(--surface);color:var(--text);outline:none;transition:border-color .12s; }
+.field-modal input:focus, .field-modal select:focus { border-color:var(--blue-mid);box-shadow:0 0 0 3px rgba(55,138,221,.1); }
+.sponsor-initials { width:34px;height:34px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;color:white; }
+.action-btn { background:none;border:none;cursor:pointer;padding:5px;border-radius:6px;color:var(--text3);font-size:16px;transition:background .12s,color .12s; }
+.action-btn:hover { background:var(--surface2);color:var(--text); }
+.action-btn.del:hover { background:var(--red-light);color:var(--red); }
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-logo" onclick="showView('projects')">
-    <div class="nav-logo-mark"><i class="ti ti-building-hospital"></i></div>
-    Target Health CTMS
+<!-- ─── SIDEBAR ─── -->
+<aside class="sidebar">
+  <div class="sidebar-logo" style="padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);">
+    <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAxAJYDASIAAhEBAxEB/8QAHQABAAMAAwEBAQAAAAAAAAAAAAYHCAMEBQIJAf/EADcQAAEDBAAEAwYDBwUAAAAAAAECAwQABQYRBxIhMRMiQQgUMlFhcTOBkRUWIyRigqEXQmNywf/EABoBAQEAAwEBAAAAAAAAAAAAAAABAgMEBQb/xAAoEQEAAQMCBAUFAAAAAAAAAAAAAQIDEQQSBRMhMSJBUWGRMkJx0fH/2gAMAwEAAhEDEQA/ANlpASkJSAABoAelKUoFKUoFKUoFKUoFKUoFKVSPGjjWrHMlZxTGICbtcvESiUkFXRSuzSeXrz9R27dqkzEd3XotDf1tzl2YzPdcM+62+A247LkoabaQVrUeyUjuTXG5e7Y29HZXKSlyS2XWEkEFxA1tQ+nUfrURtVvu1zxPxcltDVrcktqS9GblqWEIUP8AcT/kA15eKWayKuzDlvvL9zkw4oiNhVxL/hNlR6gbOt61s9+UD0ow5VFO6Ku8emJj5/K0GXm3kBbawoGvuqL4vZzmfDae1Kj4zFdtbjqUpne8OLSvrsoUnslRAOv8dqtLh3l9rzfF499tS/I55XWifMy4O6D9f/CKRVGcN13h1+1p6dTMeCrziYn5x2SKlKVXCUpSgUqD8X8yyLDbXBlY7hkvKXpDxbdZjuFBaSE75jpCvXpVPY77TWU5BMkxrTwllTFxFBMvwbgpXgbJHm/hdOx/Q0MNM0qOWnOcRuLrEVjJrIua6E/yyJ7al8xHwgA7J9K7M3LsVhOvtTMms0dyOsNvocnNpU0o9AFAnYP0NB7VK8V3LcVZnOQXcls7cptBcWyqa2FpSBskjewNdftXO7kVgas6by5fLYi2LOkzDKQGVHZHRe9HqCO/pQenSvDOX4wqwTL6xfrbJt0NBU++zKQtCPoSDoE9AAe5IqO8HOKNj4mW6ZMtYEVTEhbaIzryS+ptIT/FKB1SklWqCfUqMcVssODcPrtlaYInm3tpX7uXfD59rSnXNo6+Lfb0qIW/i+uXwClcUv2AlCmEKX7h71sK04Eficn138NBNuJF/wD3Ywa730a8SJGUpsH1Weif8kVQnso45GfF54mZAoOLYcc8J57ryq1zuukn10e/1NTwZFZOLPAdi6ZHPj4lEuy1JJcloIQW3SNBSwkHfLvWq9TDcUxSJwanYrbMqZmWd1p9Ei5sPteQL2VkqBKRoHXX0rCYmasve0ets2NBXZ3YrrqiJ6fb5/xSqLjnXHbP3W7RMdt1ht7ocTtZS0ygK8pUB8bh10H37DZqUZfwwvl/skleL3dlFwtj5UWmklpbxGyE847KHUjfTzdx3M14XWLArDjlzxDEc7iS5lxK1eM3MZckJUUcu0pT30Buqb4N5nZMOvWYZBc7xefd7D/KrjPPoWZylKUlPKnp5hyb9akU+ruv8Wtczdpqooot/TTtzu9cz7p3wDzR3iBZrtw5zpv3uW0wobfT53GweVQV/WhWuvf8xUa9n6VNwHjjdsBkvKVDlrW0Art4iAVNr+5TsfmPlXQueXYvisuzcb7JFfnzb/LeRItQuDaURVLSQQvlQTs/Fo66/OrUjYXiGScYGc2t+YR13iOW33rZHeacKOVISQoA8w+vSptnoyq4noZqv0U9LdyjOMdIr9v32XDSlK2vkSlKUCsXcDJiLVa+Nk6XaX7mwhoc8RClILyS6+COZPUDR2SPTdbRrrsQILBcLEOO14v4nI0lPP8AfQ69zQfnjl0i0v4XYblYo9ht8tM4uqiW2E6ZMUbOi9JX1V11pP5jtVr8O8IsWbe0/nLOSwDOix3HH22lqUlCnOcaUdEb18u3WtYt2aztMqYbtMBDSlcykJjoCSfmRrvXOzChsPLeZiMNOr6KWhsBSvuR3ouWA59us9picRbZmuNXeTmBkLdt0tDSyhpIUSpwqBACfXZBBFdq+s3L/THhDKmhH7st+8h5T7S3YyHvfHNl1KepHLrp8grXrWicj4CXO5yLxHh8T77Est3WVSre6yHxylRJQlaljSevbX61aGIYhZcZwuBiUSMmRboTXhpTISF8/UkqUCNEkkn86GWW+F+J2TI8qzUWy6265WqXaXEzLba7bIjQ1LTyqaKFHSQQ4kEDfXza6V7vsHDE0Rbo0lpSMwSHPH5kuA+58zeh18nx6/q/KtPwYMKAz4MGHHitk75GWghP6AV8RLZbYchyREt8SO87+I40ylKl+vUgbNDKvfamSVcAcrSkEkx2ugH/ADN1ly2cHrZJ9myXxGVc7km4MtqUIg14R06Edu/Y7rdr7LMhlTL7SHW1fEhaQpJ+4NcYhQ0xDEESOIx7tBsch/t7UMvz3ix7m1G4byr8GEY0mM8lhdwjrehNue8veJ4iE9Sfg38xy+gqT202ix4znN6g+Dk9imOtNSbXChyocNtwucyFhR15Bo6APqn0rbrtstrsMQnbfEXGB2GVMpKB/brVfTVut7MJUJqDFbiqGlMpaSEEfVOtUMsEIcgIznh3cLGqysn3hpTibRCcaEdXOk8jrq+rrg31Pp+dc0Wxx7tjPGCQ7DVIft81qRHI3ttXjOJKtDv0J71u1uz2ltptlu1wUNtq5kITHSAk/MDXQ9K/kWz2mIZBi2uEwZP45bYSnxf+2h17nvQywdlTeLP+zxiLWPMq/aH7UKb1pLm/H5OnxdPh18PSrDx7FrXhfteY1bcciuQ4a7ehbiedSuZS2Fc5JJPc+lataslmaZ8Fq0wENc3NyJjICd/PWu9dgwoZkplGIwX0jSXfDHOB9D3oZc9KUohSlKBSlKBSlKBSlKBSlKBSlKBSlKBSlKBSlKBSlKBSlKD/2Q=="
+      alt="Target Health" style="height:38px; width:auto; object-fit:contain;">
   </div>
-  <div class="nav-breadcrumb" id="nav-breadcrumb"></div>
-  <div class="nav-right">
-    <button class="btn btn-sm btn-primary" onclick="startNewProposal()"><i class="ti ti-plus"></i> New proposal</button>
-  </div>
-</nav>
 
-<!-- PROJECTS LIST -->
-<div class="view active" id="view-projects">
-  <div class="page">
-    <div class="page-header">
+  <div style="padding:.5rem .75rem 0">
+    <div class="sidebar-section">Project Management</div>
+    <a class="nav-item" onclick="showPage('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+    <a class="nav-item" onclick="showPage('sponsors')" id="nav-sponsors"><i class="ti ti-building"></i> Sponsors</a>
+    <a class="nav-item" onclick="showPage('projects')" id="nav-projects"><i class="ti ti-folder-open"></i> Projects</a>
+    <a class="nav-item" onclick="showPage('investigators')" id="nav-investigators"><i class="ti ti-user-md"></i> Investigators</a>
+    <a class="nav-item"><i class="ti ti-certificate"></i> IRB/IEC</a>
+    <a class="nav-item"><i class="ti ti-chart-bar"></i> Reports</a>
+
+    <div class="sidebar-section" style="margin-top:.5rem">Tools & Utils</div>
+    <a class="nav-item"><i class="ti ti-tool"></i> Tools</a>
+    <a class="nav-item"><i class="ti ti-settings"></i> Utilities</a>
+
+    <div class="sidebar-section" style="margin-top:.5rem">Administration</div>
+    <a class="nav-item"><i class="ti ti-users"></i> User Management</a>
+    <a class="nav-item"><i class="ti ti-shield"></i> Permissions</a>
+    <a class="nav-item"><i class="ti ti-adjustments"></i> System Settings</a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="user-avatar">JJ</div>
       <div>
-        <div class="page-title">Projects</div>
-        <div class="page-sub">All proposals saved to CTMS</div>
+        <div class="user-name">Ji Yong Jeon</div>
+        <div class="user-role">CEO</div>
       </div>
     </div>
-    <div class="proj-list" id="proj-list"></div>
+  </div>
+</aside>
+
+<!-- ─── MAIN ─── -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Dashboard</div>
+      <div class="topbar-sub" id="today-date"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:2px;margin-left:2rem">
+      <button class="topbar-tab active">Home</button>
+      <button class="topbar-tab">Tools & Utils</button>
+      <button class="topbar-tab">Administration</button>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-search"><i class="ti ti-search" style="font-size:14px"></i> Search...</div>
+      <button class="topbar-btn"><i class="ti ti-bell"></i></button>
+      <button class="topbar-btn"><i class="ti ti-settings"></i></button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="page-dashboard" class="content">
+
+    <div class="content-header">
+      <div>
+        <div class="content-title">Overview</div>
+        <div class="content-sub">All active projects and financials at a glance</div>
+      </div>
+      <div class="date-filter">
+        <button class="filter-btn">Q1 2026</button>
+        <button class="filter-btn active">YTD 2026</button>
+        <button class="filter-btn">All time</button>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-label"><i class="ti ti-folder-open"></i> Active Projects</div>
+        <div class="kpi-val">24</div>
+        <div class="kpi-sub"><span class="kpi-delta up">+3</span> vs last quarter</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label"><i class="ti ti-currency-dollar"></i> Total Contract Value</div>
+        <div class="kpi-val">$4.2M</div>
+        <div class="kpi-sub"><span class="kpi-delta up">+12%</span> vs last year</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label"><i class="ti ti-circle-check"></i> Collected YTD</div>
+        <div class="kpi-val">$2.8M</div>
+        <div class="kpi-sub" style="color:var(--text2)">67% of total contract value</div>
+      </div>
+      <div class="kpi-card purple">
+        <div class="kpi-label"><i class="ti ti-clock-hour-4"></i> Hours Logged</div>
+        <div class="kpi-val">8,340h</div>
+        <div class="kpi-sub"><span class="kpi-delta up">+8%</span> vs last quarter</div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="kpi-label"><i class="ti ti-building"></i> Active Sponsors</div>
+        <div class="kpi-val">18</div>
+        <div class="kpi-sub" style="color:var(--text2)">6 new this year</div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label"><i class="ti ti-send"></i> Submissions YTD</div>
+        <div class="kpi-val">12</div>
+        <div class="kpi-sub" style="color:var(--text2)">3 FDA · 9 Pre-Sub</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-label"><i class="ti ti-alert-circle"></i> Overdue Milestones</div>
+        <div class="kpi-val">5</div>
+        <div class="kpi-sub"><span class="kpi-delta down">+2</span> vs last month</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-label"><i class="ti ti-users"></i> Team Members</div>
+        <div class="kpi-val">31</div>
+        <div class="kpi-sub" style="color:var(--text2)">Across 6 departments</div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="chart-grid-3">
+      <!-- Revenue by Sponsor -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Revenue by Sponsor</div>
+            <div class="chart-sub">Top 6 sponsors by contract value</div>
+          </div>
+          <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> View all</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-sponsor" height="200"></canvas></div>
+      </div>
+
+      <!-- Projects by Phase -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Projects by Phase</div>
+            <div class="chart-sub">Current distribution</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chart-phase" height="200" width="200"></canvas></div>
+      </div>
+
+      <!-- Hours by Department -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Hours by Department</div>
+            <div class="chart-sub">YTD logged hours</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="display:flex;justify-content:center"><canvas id="chart-dept" height="200" width="200"></canvas></div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="chart-grid">
+      <!-- Monthly Revenue Trend -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Monthly Collection vs Contract</div>
+            <div class="chart-sub">Billed vs collected 2026 YTD</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-revenue" height="180"></canvas></div>
+      </div>
+
+      <!-- Milestone Payment Status -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Milestone Payment Status</div>
+            <div class="chart-sub">All active projects</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-milestone-status" height="180"></canvas></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="chart-grid">
+      <!-- Sponsor Table -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Active Sponsors</div>
+            <div class="chart-sub">Project status & financials</div>
+          </div>
+          <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> View all</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Sponsor</th><th>Phase</th><th>Status</th><th>Contract</th><th>Collected</th><th>Progress</th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="sponsor-name">BNPLAB / Osstem Vascular</div><div class="sponsor-study">CENTUM – FDA Pre-Sub</div></td>
+                <td><span class="badge badge-purple">Pre-Sub</span></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="mono">$50,000</td>
+                <td class="mono">$25,500</td>
+                <td><div class="prog-bar"><div class="prog-fill" style="width:51%;background:var(--green-mid)"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="sponsor-name">Absology Co., Ltd.</div><div class="sponsor-study">Phase I/II – VitD Test Kit</div></td>
+                <td><span class="badge badge-blue">Phase I/II</span></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="mono">$145,500</td>
+                <td class="mono">$75,500</td>
+                <td><div class="prog-bar"><div class="prog-fill" style="width:52%;background:var(--blue-mid)"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="sponsor-name">Epygenix Therapeutics</div><div class="sponsor-study">DEE – Phase III NDA</div></td>
+                <td><span class="badge badge-purple">Phase III</span></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="mono">$320,000</td>
+                <td class="mono">$280,000</td>
+                <td><div class="prog-bar"><div class="prog-fill" style="width:87%;background:var(--green-mid)"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="sponsor-name">Target Health Inc.</div><div class="sponsor-study">Internal – eStudio Dev</div></td>
+                <td><span class="badge" style="background:var(--surface2);color:var(--text3)">Internal</span></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="mono">$—</td>
+                <td class="mono">$—</td>
+                <td><div class="prog-bar"><div class="prog-fill" style="width:60%;background:var(--blue-mid)"></div></div></td>
+              </tr>
+              <tr>
+                <td><div class="sponsor-name">DiaMedica Therapeutics</div><div class="sponsor-study">DM-199 – Phase II IND</div></td>
+                <td><span class="badge badge-blue">Phase II</span></td>
+                <td><span class="badge badge-pending">On hold</span></td>
+                <td class="mono">$95,000</td>
+                <td class="mono">$60,000</td>
+                <td><div class="prog-bar"><div class="prog-fill" style="width:63%;background:var(--amber)"></div></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right column: Upcoming Milestones + Activity -->
+      <div style="display:flex;flex-direction:column;gap:1rem">
+
+        <!-- Upcoming Milestones -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Upcoming Milestones</div>
+              <div class="chart-sub">Due in next 60 days</div>
+            </div>
+            <button class="chart-action"><i class="ti ti-external-link" style="font-size:12px"></i> All</button>
+          </div>
+          <div class="ms-list">
+            <div class="ms-item">
+              <div class="ms-dot" style="background:#E07A00"></div>
+              <div class="ms-info">
+                <div class="ms-name">IND submission to FDA</div>
+                <div class="ms-sponsor">Absology Co., Ltd.</div>
+              </div>
+              <div style="text-align:right">
+                <div class="ms-amount">$30,000</div>
+                <div class="ms-date">May 30, 2026</div>
+              </div>
+            </div>
+            <div class="ms-item">
+              <div class="ms-dot" style="background:var(--red)"></div>
+              <div class="ms-info">
+                <div class="ms-name">Q-Submission Package</div>
+                <div class="ms-sponsor">BNPLAB / Osstem</div>
+              </div>
+              <div style="text-align:right">
+                <div class="ms-amount">$12,500</div>
+                <div class="ms-date">Jun 3, 2026 <span style="color:var(--red);font-weight:600"> Overdue</span></div>
+              </div>
+            </div>
+            <div class="ms-item">
+              <div class="ms-dot" style="background:var(--green-mid)"></div>
+              <div class="ms-info">
+                <div class="ms-name">Phase II Interim Analysis</div>
+                <div class="ms-sponsor">DiaMedica Therapeutics</div>
+              </div>
+              <div style="text-align:right">
+                <div class="ms-amount">$18,000</div>
+                <div class="ms-date">Jun 15, 2026</div>
+              </div>
+            </div>
+            <div class="ms-item">
+              <div class="ms-dot" style="background:var(--blue-mid)"></div>
+              <div class="ms-info">
+                <div class="ms-name">NDA Filing – Final Package</div>
+                <div class="ms-sponsor">Epygenix Therapeutics</div>
+              </div>
+              <div style="text-align:right">
+                <div class="ms-amount">$40,000</div>
+                <div class="ms-date">Jul 1, 2026</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div><div class="chart-title">Recent Activity</div></div>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon" style="background:var(--green-light);color:var(--green)"><i class="ti ti-circle-check"></i></div>
+              <div>
+                <div class="activity-text"><strong>Milestone paid</strong> – At signing · Absology Co.</div>
+                <div class="activity-time">2 hours ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:var(--blue-light);color:var(--blue)"><i class="ti ti-file-plus"></i></div>
+              <div>
+                <div class="activity-text"><strong>New proposal saved</strong> – BNPLAB / Osstem Vascular</div>
+                <div class="activity-time">Yesterday, 3:42 PM</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:var(--amber-light);color:var(--amber)"><i class="ti ti-alert-triangle"></i></div>
+              <div>
+                <div class="activity-text"><strong>Milestone overdue</strong> – Q-Submission Package · BNPLAB</div>
+                <div class="activity-time">2 days ago</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:var(--purple-light);color:var(--purple)"><i class="ti ti-send"></i></div>
+              <div>
+                <div class="activity-text"><strong>FDA submission</strong> – Pre-Sub request filed · Absology</div>
+                <div class="activity-time">3 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /content dashboard -->
+
+  <!-- ─── SPONSORS PAGE ─── -->
+  <div id="page-sponsors" class="content" style="display:none">
+    <div class="content-header">
+      <div>
+        <div class="content-title">Sponsors</div>
+        <div class="content-sub" id="sponsor-count-sub">Loading...</div>
+      </div>
+      <button class="btn-primary-action" onclick="openAddSponsor()">
+        <i class="ti ti-plus"></i> Add New Sponsor
+      </button>
+    </div>
+
+    <!-- Search & Filter bar -->
+    <div class="sponsor-toolbar">
+      <div class="sponsor-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="sponsor-search-input" placeholder="Search by company name, acronym, city, or country..." oninput="filterSponsors()">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="sponsor-country-filter" onchange="filterSponsors()" class="filter-select">
+          <option value="">All Countries</option>
+        </select>
+        <select id="sponsor-status-filter" onchange="filterSponsors()" class="filter-select">
+          <option value="">All Status</option>
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="chart-card" style="padding:0;overflow:hidden">
+      <div class="table-wrap">
+        <table id="sponsor-table">
+          <thead>
+            <tr>
+              <th style="padding:12px 16px;width:40px">#</th>
+              <th style="padding:12px 16px" onclick="sortSponsors('name')" class="th-sort">Company Name <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+              <th style="padding:12px 16px" onclick="sortSponsors('acronym')" class="th-sort">Acronym <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+              <th style="padding:12px 16px" onclick="sortSponsors('city')" class="th-sort">City <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+              <th style="padding:12px 16px" onclick="sortSponsors('country')" class="th-sort">Country <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+              <th style="padding:12px 16px">Status</th>
+              <th style="padding:12px 16px">Projects</th>
+              <th style="padding:12px 16px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sponsor-tbody"></tbody>
+        </table>
+      </div>
+      <div id="sponsor-empty" style="display:none;text-align:center;padding:3rem;color:var(--text3)">
+        <i class="ti ti-building-off" style="font-size:40px;display:block;margin-bottom:.75rem"></i>
+        <div style="font-size:14px">No sponsors found</div>
+      </div>
+    </div>
+  </div><!-- /sponsors -->
+
+  <!-- ─── PROJECTS PAGE ─── -->
+  <div id="page-projects" class="content" style="display:none">
+    <!-- KPI 요약 -->
+    <div class="content-header">
+      <div>
+        <div class="content-title">Projects</div>
+        <div class="content-sub" id="proj-count-sub">Loading...</div>
+      </div>
+      <button class="btn-primary-action" onclick="openAddProject()"><i class="ti ti-plus"></i> Add New</button>
+    </div>
+
+    <!-- KPI mini -->
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.75rem;margin-bottom:1.25rem" id="proj-kpi-row"></div>
+
+    <!-- Toolbar -->
+    <div class="sponsor-toolbar">
+      <div class="sponsor-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="proj-search-input" placeholder="Search by Project ID, Sponsor, Description, Inv. Product..." oninput="filterProjects()">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="proj-status-filter" onchange="filterProjects()" class="filter-select">
+          <option value="">All Status</option>
+          <option value="Ongoing">Ongoing</option>
+          <option value="Proposal">Proposal</option>
+          <option value="Work Order Sent">Work Order Sent</option>
+          <option value="On Hold">On Hold</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <select id="proj-sponsor-filter" onchange="filterProjects()" class="filter-select">
+          <option value="">All Sponsors</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="chart-card" style="padding:0;overflow:hidden">
+      <div class="table-wrap">
+        <table id="proj-table">
+          <thead><tr>
+            <th style="padding:12px 16px" onclick="sortProjects('pid')" class="th-sort">Project ID <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortProjects('sponsor')" class="th-sort">Sponsor <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px">Inv. Product</th>
+            <th style="padding:12px 16px">Description</th>
+            <th style="padding:12px 16px" onclick="sortProjects('startDate')" class="th-sort">Start <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortProjects('status')" class="th-sort">Status <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px">Actions</th>
+          </tr></thead>
+          <tbody id="proj-tbody"></tbody>
+        </table>
+      </div>
+      <div id="proj-empty" style="display:none;text-align:center;padding:3rem;color:var(--text3)">
+        <i class="ti ti-folder-off" style="font-size:40px;display:block;margin-bottom:.75rem"></i>
+        <div style="font-size:14px">No projects found</div>
+      </div>
+    </div>
+  </div><!-- /projects -->
+
+  <!-- ─── INVESTIGATORS PAGE ─── -->
+  <div id="page-investigators" class="content" style="display:none">
+    <div class="content-header">
+      <div>
+        <div class="content-title">Investigators</div>
+        <div class="content-sub" id="inv-count-sub">Loading...</div>
+      </div>
+      <button class="btn-primary-action" onclick="openAddInvestigator()"><i class="ti ti-plus"></i> Add New</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="sponsor-toolbar">
+      <div class="sponsor-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="inv-search-input" placeholder="Search by name, specialty, institution, country, or email..." oninput="filterInvestigators()">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select id="inv-specialty-filter" onchange="filterInvestigators()" class="filter-select">
+          <option value="">All Specialties</option>
+        </select>
+        <select id="inv-country-filter" onchange="filterInvestigators()" class="filter-select">
+          <option value="">All Countries</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="chart-card" style="padding:0;overflow:hidden">
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="padding:12px 16px" onclick="sortInvestigators('name')" class="th-sort">Name <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortInvestigators('specialty')" class="th-sort">Specialty <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortInvestigators('institution')" class="th-sort">Institution <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px" onclick="sortInvestigators('country')" class="th-sort">Country <i class="ti ti-selector" style="font-size:11px;vertical-align:-1px"></i></th>
+            <th style="padding:12px 16px">E-mail Address</th>
+            <th style="padding:12px 16px">Phone</th>
+          </tr></thead>
+          <tbody id="inv-tbody"></tbody>
+        </table>
+      </div>
+      <div id="inv-empty" style="display:none;text-align:center;padding:3rem;color:var(--text3)">
+        <i class="ti ti-user-off" style="font-size:40px;display:block;margin-bottom:.75rem"></i>
+        <div style="font-size:14px">No investigators found</div>
+      </div>
+    </div>
+  </div><!-- /investigators -->
+
+</div><!-- /main -->
+
+<!-- ─── ADD SPONSOR MODAL ─── -->
+<div id="sponsor-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:2rem;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div style="font-size:16px;font-weight:600" id="modal-title">Add New Sponsor</div>
+      <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);padding:4px"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal">
+        <label>Company Name *</label>
+        <input id="m-name" placeholder="e.g. BNPLAB Co., Ltd.">
+      </div>
+      <div class="field-modal">
+        <label>Acronym</label>
+        <input id="m-acronym" placeholder="e.g. BNPLAB">
+      </div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal">
+        <label>City</label>
+        <input id="m-city" placeholder="e.g. Seoul">
+      </div>
+      <div class="field-modal">
+        <label>Country *</label>
+        <input id="m-country" placeholder="e.g. South Korea">
+      </div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal">
+        <label>Contact Person</label>
+        <input id="m-contact" placeholder="e.g. Sung Hee Park">
+      </div>
+      <div class="field-modal">
+        <label>Email</label>
+        <input id="m-email" type="email" placeholder="contact@sponsor.com">
+      </div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal">
+        <label>Phone</label>
+        <input id="m-phone" placeholder="+82-2-000-0000">
+      </div>
+      <div class="field-modal">
+        <label>Status</label>
+        <select id="m-status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:.75rem">
+      <label style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Address</label>
+      <textarea id="m-address" rows="2" placeholder="Full address" style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;width:100%;outline:none;resize:none;color:var(--text)"></textarea>
+    </div>
+    <div id="modal-error" style="display:none;margin-top:.75rem;padding:.75rem 1rem;background:var(--red-light);border-radius:var(--radius-sm);font-size:13px;color:var(--red)"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem">
+      <button onclick="closeModal()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);cursor:pointer">Cancel</button>
+      <button onclick="saveSponsor()" class="btn-primary-action" id="modal-save-btn"><i class="ti ti-device-floppy"></i> Save sponsor</button>
+    </div>
   </div>
 </div>
 
-<!-- WORKFLOW -->
-<div class="view" id="view-workflow">
-  <div class="page">
-    <div class="step-bar">
-      <div class="step-item active" id="si-1"><div class="step-num">1</div><span>Sponsor info</span></div>
-      <div class="step-line"></div>
-      <div class="step-item" id="si-2"><div class="step-num">2</div><span>Project scope</span></div>
-      <div class="step-line"></div>
-      <div class="step-item" id="si-3"><div class="step-num">3</div><span>Milestones</span></div>
-      <div class="step-line"></div>
-      <div class="step-item" id="si-4"><div class="step-num">4</div><span>Review & save</span></div>
+<!-- ─── ADD PROJECT MODAL ─── -->
+<div id="project-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:2rem;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div style="font-size:16px;font-weight:600" id="proj-modal-title">Add New Project</div>
+      <button onclick="closeProjModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);padding:4px"><i class="ti ti-x"></i></button>
     </div>
-
-    <!-- STEP 1 -->
-    <div id="step-1">
-      <div class="card">
-        <div class="card-title"><i class="ti ti-building"></i> Sponsor information</div>
-        <div class="field-row col2">
-          <div class="field"><label>Sponsor name *</label><input id="f-sponsor" placeholder="e.g. BNPLAB Co., Ltd."></div>
-          <div class="field"><label>Contact person</label><input id="f-contact" placeholder="e.g. Sung Hee Park"></div>
-        </div>
-        <div class="field-row col3">
-          <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="contact@sponsor.com"></div>
-          <div class="field"><label>Phone</label><input id="f-phone" placeholder="+82-2-000-0000"></div>
-          <div class="field"><label>Country</label><input id="f-country" placeholder="e.g. South Korea"></div>
-        </div>
-        <div class="field"><label>Address</label><textarea id="f-address" rows="2" placeholder="Full address"></textarea></div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="ti ti-users"></i> Project assignment</div>
-        <div class="field-row col3">
-          <div class="field"><label>Project manager</label>
-            <select id="f-pm"><option value="">— Select PM —</option><option>Sarah Mitchell</option><option>James O'Brien</option><option>Yuki Tanaka</option><option>Mittal Suthar</option></select>
-          </div>
-          <div class="field"><label>Lead CRA</label>
-            <select id="f-cra"><option value="">— Select CRA —</option><option>Mittal Suthar</option><option>David Chen</option><option>Priya Nair</option></select>
-          </div>
-          <div class="field"><label>Department</label>
-            <select id="f-dept"><option>RO – Regulatory Ops</option><option>RS – Reg Strategy</option><option>DM – Data Management</option><option>SD – Statistics</option><option>QC – Quality Control</option></select>
-          </div>
-        </div>
-      </div>
-      <div class="section-actions">
-        <button class="btn" onclick="showView('projects')"><i class="ti ti-x"></i> Cancel</button>
-        <button class="btn btn-primary" onclick="goStep(2)">Next <i class="ti ti-arrow-right"></i></button>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Project ID *</label><input id="pm-id" placeholder="e.g. ABSO-25002"></div>
+      <div class="field-modal"><label>Sponsor *</label>
+        <select id="pm-sponsor"><option value="">— Select Sponsor —</option></select>
       </div>
     </div>
-
-    <!-- STEP 2 -->
-    <div id="step-2" style="display:none">
-      <div class="card">
-        <div class="card-title"><i class="ti ti-clipboard-list"></i> Project scope</div>
-        <div class="field-row col2">
-          <div class="field"><label>Project title *</label><input id="f-title" placeholder="e.g. CENTUM – FDA Pre-Submission Meeting"></div>
-          <div class="field"><label>Indication</label><input id="f-indication" placeholder="e.g. Coronary Stent System"></div>
-        </div>
-        <div class="field-row col3">
-          <div class="field"><label>Study phase</label>
-            <select id="f-phase"><option value="">— Select —</option><option>Pre-IND</option><option>Pre-Sub</option><option>Phase I</option><option>Phase I/II</option><option>Phase II</option><option>Phase III</option><option>Phase IV</option><option>NDA/BLA</option><option>PMA</option><option>510(k)</option></select>
-          </div>
-          <div class="field"><label>Start date</label><input type="date" id="f-start"></div>
-          <div class="field"><label>End date</label><input type="date" id="f-end"></div>
-        </div>
-        <div class="field"><label>Scope summary</label><textarea id="f-scope" rows="3" placeholder="Brief description of services to be provided..."></textarea></div>
-      </div>
-      <div class="section-actions">
-        <button class="btn" onclick="goStep(1)"><i class="ti ti-arrow-left"></i> Back</button>
-        <button class="btn btn-primary" onclick="goStep(3)">Next <i class="ti ti-arrow-right"></i></button>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Sponsor No.</label><input id="pm-sponsor-no" placeholder="e.g. SPN-001"></div>
+      <div class="field-modal"><label>Internal No.</label><input id="pm-internal-no" placeholder="e.g. INT-2025-001"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Inv. Product</label><input id="pm-inv-product" placeholder="e.g. CENTUM Stent"></div>
+      <div class="field-modal"><label>Status</label>
+        <select id="pm-status">
+          <option value="Ongoing">Ongoing</option>
+          <option value="Proposal">Proposal</option>
+          <option value="Work Order Sent">Work Order Sent</option>
+          <option value="On Hold">On Hold</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
       </div>
     </div>
-
-    <!-- STEP 3 -->
-    <div id="step-3" style="display:none">
-      <div class="card">
-        <div class="card-title"><i class="ti ti-currency-dollar"></i> Payment milestones</div>
-        <div class="ms-head"><span>Milestone</span><span>Due date</span><span>Amount (USD)</span><span></span></div>
-        <div id="milestone-list"></div>
-        <div class="total-row">
-          <span class="total-label">Total contract value</span>
-          <span class="total-amount" id="total-amount">$0</span>
-        </div>
-        <div style="margin-top:1.25rem">
-          <button class="btn btn-sm" onclick="addMilestone()"><i class="ti ti-plus"></i> Add milestone</button>
-        </div>
-      </div>
-      <div class="section-actions">
-        <button class="btn" onclick="goStep(2)"><i class="ti ti-arrow-left"></i> Back</button>
-        <button class="btn btn-primary" onclick="goStep(4)">Review & save <i class="ti ti-arrow-right"></i></button>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Start Date</label><input type="date" id="pm-start"></div>
+      <div class="field-modal"><label>End Date</label><input type="date" id="pm-end"></div>
+    </div>
+    <div style="margin-top:.25rem">
+      <div class="field-modal"><label>Description</label>
+        <textarea id="pm-desc" rows="3" placeholder="Brief project description..." style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;width:100%;outline:none;resize:none;color:var(--text)"></textarea>
       </div>
     </div>
+    <div id="proj-modal-error" style="display:none;margin-top:.75rem;padding:.75rem 1rem;background:var(--red-light);border-radius:var(--radius-sm);font-size:13px;color:var(--red)"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem">
+      <button onclick="closeProjModal()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);cursor:pointer">Cancel</button>
+      <button onclick="saveProject()" class="btn-primary-action" id="proj-modal-save-btn"><i class="ti ti-device-floppy"></i> Save project</button>
+    </div>
+  </div>
+</div>
 
-    <!-- STEP 4 -->
-    <div id="step-4" style="display:none">
-      <div class="success-banner">
-        <i class="ti ti-circle-check"></i>
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--green)">Ready to save</div>
-          <div style="font-size:12px;color:var(--green);opacity:.8">Review before saving to CTMS.</div>
-        </div>
+<!-- ─── ADD INVESTIGATOR MODAL ─── -->
+<div id="inv-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:none;align-items:center;justify-content:center;padding:1.5rem">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:2rem;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div style="font-size:16px;font-weight:600" id="inv-modal-title">Add New Investigator</div>
+      <button onclick="closeInvModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);padding:4px"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Name *</label><input id="im-name" placeholder="e.g. Dr. John Smith"></div>
+      <div class="field-modal"><label>Specialty</label><input id="im-specialty" placeholder="e.g. Cardiology"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Institution</label><input id="im-institution" placeholder="e.g. Johns Hopkins Hospital"></div>
+      <div class="field-modal"><label>Country</label><input id="im-country" placeholder="e.g. United States"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>E-mail Address</label><input id="im-email" type="email" placeholder="doctor@hospital.com"></div>
+      <div class="field-modal"><label>Phone</label><input id="im-phone" placeholder="+1-000-000-0000"></div>
+    </div>
+    <div class="field-row-modal">
+      <div class="field-modal"><label>Role</label>
+        <select id="im-role">
+          <option value="Principal Investigator">Principal Investigator</option>
+          <option value="Sub-Investigator">Sub-Investigator</option>
+          <option value="Co-Investigator">Co-Investigator</option>
+        </select>
       </div>
-      <div class="summary-grid">
-        <div class="metric"><div class="metric-label">Sponsor</div><div class="metric-val" id="sum-sponsor" style="font-size:14px;line-height:1.4"></div></div>
-        <div class="metric"><div class="metric-label">Milestones</div><div class="metric-val" id="sum-count"></div></div>
-        <div class="metric"><div class="metric-label">Total value</div><div class="metric-val mono" id="sum-total"></div></div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="ti ti-file-description"></i> Project summary</div>
-        <div class="field-row col2" style="margin-bottom:0">
-          <div class="field"><label>Project title</label><input id="rev-title" readonly style="background:var(--surface2);color:var(--text2)"></div>
-          <div class="field"><label>Contact</label><input id="rev-contact" readonly style="background:var(--surface2);color:var(--text2)"></div>
-        </div>
-        <div class="field-row col3" style="margin-top:12px;margin-bottom:0">
-          <div class="field"><label>Phase</label><input id="rev-phase" readonly style="background:var(--surface2);color:var(--text2)"></div>
-          <div class="field"><label>Start</label><input id="rev-start" readonly style="background:var(--surface2);color:var(--text2)"></div>
-          <div class="field"><label>End</label><input id="rev-end" readonly style="background:var(--surface2);color:var(--text2)"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title"><i class="ti ti-receipt"></i> Milestone schedule</div>
-        <div id="review-milestones"></div>
-      </div>
-      <div class="section-actions">
-        <button class="btn" onclick="goStep(3)"><i class="ti ti-arrow-left"></i> Back</button>
-        <button class="btn btn-primary" id="save-btn" onclick="saveToCtms()"><i class="ti ti-device-floppy"></i> Save to CTMS</button>
+      <div class="field-modal"><label>Linked Project</label>
+        <select id="im-project"><option value="">— Select Project —</option></select>
       </div>
     </div>
-
+    <div id="inv-modal-error" style="display:none;margin-top:.75rem;padding:.75rem 1rem;background:var(--red-light);border-radius:var(--radius-sm);font-size:13px;color:var(--red)"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem">
+      <button onclick="closeInvModal()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text);cursor:pointer">Cancel</button>
+      <button onclick="saveInvestigator()" class="btn-primary-action" id="inv-modal-save-btn"><i class="ti ti-device-floppy"></i> Save investigator</button>
+    </div>
   </div>
 </div>
 
 <script>
-let milestones = [];
-let projects = JSON.parse(localStorage.getItem('ctms_projects') || '[]');
+// Today's date
+document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-function showView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  const bc = document.getElementById('nav-breadcrumb');
-  bc.innerHTML = name === 'workflow'
-    ? `<i class="ti ti-chevron-right"></i><a onclick="showView('projects')">Projects</a><i class="ti ti-chevron-right"></i><span style="color:var(--text);font-weight:500">New proposal</span>`
-    : '';
-  if (name === 'projects') renderProjects();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function startNewProposal() {
-  milestones = [];
-  ['f-sponsor','f-contact','f-email','f-phone','f-country','f-address','f-title','f-indication','f-scope']
-    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  ['f-phase','f-start','f-end','f-pm','f-cra'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  goStep(1, true);
-  showView('workflow');
-}
-
-function goStep(n, force) {
-  if (!force) {
-    if (n === 2 && !document.getElementById('f-sponsor').value.trim()) { alert('Sponsor name is required.'); return; }
-    if (n === 3 && !document.getElementById('f-title').value.trim()) { alert('Project title is required.'); return; }
-  }
-  for (let i = 1; i <= 4; i++) document.getElementById('step-'+i).style.display = i===n ? 'block' : 'none';
-  ['si-1','si-2','si-3','si-4'].forEach((id,i) => {
-    const el = document.getElementById(id);
-    el.classList.remove('active','done');
-    if (i+1 < n) el.classList.add('done');
-    else if (i+1 === n) el.classList.add('active');
+// ─── PAGE SWITCHING ───────────────────────────────────────
+function showPage(page) {
+  ['dashboard','sponsors','projects','investigators'].forEach(p => {
+    document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
   });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (n === 3) renderMilestones();
-  if (n === 4) renderReview();
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (page === 'sponsors')      { document.getElementById('nav-sponsors').classList.add('active'); renderSponsors(); }
+  if (page === 'projects')      { document.getElementById('nav-projects').classList.add('active'); renderProjects(); }
+  if (page === 'investigators') { document.getElementById('nav-investigators').classList.add('active'); renderInvestigators(); }
 }
 
-function renderMilestones() {
-  const list = document.getElementById('milestone-list');
-  if (!milestones.length) {
-    list.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text3);font-size:13px"><i class="ti ti-receipt" style="font-size:28px;display:block;margin-bottom:.5rem"></i>No milestones yet. Click "Add milestone" to get started.</div>`;
-    updateTotal(); return;
-  }
-  list.innerHTML = milestones.map((m,i) => `
-    <div class="ms-row">
-      <input value="${escHtml(m.name)}" placeholder="Milestone description" oninput="milestones[${i}].name=this.value">
-      <input type="date" value="${m.date||''}" oninput="milestones[${i}].date=this.value">
-      <input type="number" value="${m.amount||''}" placeholder="0" min="0" step="100" oninput="milestones[${i}].amount=+this.value;updateTotal()">
-      <button class="del-btn" onclick="removeMilestone(${i})"><i class="ti ti-trash"></i></button>
-    </div>`).join('');
-  updateTotal();
-}
+// ─── PROJECT DATA ─────────────────────────────────────────
+const STATUS_STYLES = {
+  'Ongoing':         { bg:'var(--green-light)',  color:'var(--green)',  dot:'var(--green-mid)' },
+  'Proposal':        { bg:'var(--blue-light)',   color:'var(--blue)',   dot:'var(--blue-mid)' },
+  'Work Order Sent': { bg:'var(--purple-light)', color:'var(--purple)', dot:'var(--purple)' },
+  'On Hold':         { bg:'var(--amber-light)',  color:'var(--amber)',  dot:'#E07A00' },
+  'Completed':       { bg:'var(--surface2)',     color:'var(--text3)',  dot:'var(--text3)' },
+  'Cancelled':       { bg:'var(--red-light)',    color:'var(--red)',    dot:'var(--red)' },
+};
 
-function updateTotal() {
-  document.getElementById('total-amount').textContent = '$' + milestones.reduce((s,m)=>s+(m.amount||0),0).toLocaleString();
-}
+let projects = JSON.parse(localStorage.getItem('ctms_projects_v2') || 'null') || [
+  { id:1, pid:'ABSO-25002', sponsor:'Absology Co., Ltd.', sponsorNo:'SPN-001', internalNo:'INT-2025-001', invProduct:'VitD Test Kit', desc:'Phase I/II – FDA Pre-Submission & IND support', startDate:'2025-03-01', endDate:'2027-02-28', status:'Ongoing' },
+  { id:2, pid:'BNPLAB-26001', sponsor:'BNPLAB Co., Ltd.', sponsorNo:'SPN-002', internalNo:'INT-2026-001', invProduct:'CENTUM Stent', desc:'FDA Pre-Submission Meeting – Everolimus Eluting Coronary Stent', startDate:'2026-01-15', endDate:'2026-12-31', status:'Ongoing' },
+  { id:3, pid:'EPX-25001', sponsor:'Epygenix Therapeutics', sponsorNo:'SPN-003', internalNo:'INT-2025-002', invProduct:'EPX-100', desc:'Phase III NDA – Dravet Syndrome', startDate:'2024-06-01', endDate:'2026-08-31', status:'Ongoing' },
+  { id:4, pid:'DMCA-25001', sponsor:'DiaMedica Therapeutics', sponsorNo:'SPN-004', internalNo:'INT-2025-003', invProduct:'DM-199', desc:'Phase II IND – Ischemic Stroke', startDate:'2025-01-01', endDate:'2026-06-30', status:'On Hold' },
+  { id:5, pid:'CHIESI-24001', sponsor:'Chiesi Farmaceutici S.p.A.', sponsorNo:'SPN-005', internalNo:'INT-2024-001', invProduct:'CHF 5993', desc:'NDA Filing – COPD Triple Therapy', startDate:'2024-03-01', endDate:'2025-12-31', status:'Completed' },
+  { id:6, pid:'LAT-24001', sponsor:'LAT Research', sponsorNo:'SPN-006', internalNo:'INT-2024-002', invProduct:'LAT-01', desc:'Phase I – Safety & Tolerability', startDate:'2024-01-01', endDate:'2024-12-31', status:'Cancelled' },
+  { id:7, pid:'OSSTEM-26001', sponsor:'Osstem Vascular Co., Ltd.', sponsorNo:'SPN-007', internalNo:'INT-2026-002', invProduct:'CENTUM Stent', desc:'Regulatory Strategy – PMA Pathway', startDate:'2026-02-01', endDate:'2026-09-30', status:'Proposal' },
+  { id:8, pid:'ATAI-25001', sponsor:'Atai Therapeutics, Inc.', sponsorNo:'SPN-008', internalNo:'INT-2025-004', invProduct:'PCN-101', desc:'Phase II – Treatment-Resistant Depression', startDate:'2025-07-01', endDate:'2027-06-30', status:'Work Order Sent' },
+];
+function saveProjects() { localStorage.setItem('ctms_projects_v2', JSON.stringify(projects)); }
 
-function addMilestone() {
-  milestones.push({ name:'', date:'', amount:0 });
-  renderMilestones();
-  setTimeout(() => {
-    const rows = document.querySelectorAll('.ms-row input[placeholder="Milestone description"]');
-    if (rows.length) rows[rows.length-1].focus();
-  }, 50);
-}
+let projSortCol = 'pid', projSortAsc = true, projEditId = null;
 
-function removeMilestone(i) { milestones.splice(i,1); renderMilestones(); }
-
-function renderReview() {
-  document.getElementById('sum-sponsor').textContent = document.getElementById('f-sponsor').value || '—';
-  document.getElementById('sum-count').textContent = milestones.length;
-  document.getElementById('sum-total').textContent = '$' + milestones.reduce((s,m)=>s+(m.amount||0),0).toLocaleString();
-  document.getElementById('rev-title').value = document.getElementById('f-title').value;
-  document.getElementById('rev-contact').value = document.getElementById('f-contact').value;
-  document.getElementById('rev-phase').value = document.getElementById('f-phase').value;
-  document.getElementById('rev-start').value = document.getElementById('f-start').value;
-  document.getElementById('rev-end').value = document.getElementById('f-end').value;
-  document.getElementById('review-milestones').innerHTML = !milestones.length
-    ? '<div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:13px">No milestones added</div>'
-    : milestones.map((m,i) => `
-      <div class="review-row">
-        <div>
-          <div class="review-name">${escHtml(m.name)||'(unnamed)'}</div>
-          <div class="review-date">${m.date ? new Date(m.date+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : 'No date'}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span class="badge badge-blue">#${i+1}</span>
-          <span class="review-amount">$${(m.amount||0).toLocaleString()}</span>
-        </div>
-      </div>`).join('');
+function sortProjects(col) {
+  if (projSortCol === col) projSortAsc = !projSortAsc; else { projSortCol = col; projSortAsc = true; }
+  renderProjects();
 }
-
-function saveToCtms() {
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Saving...';
-  const project = {
-    id: Date.now(), savedAt: new Date().toISOString(),
-    sponsor: document.getElementById('f-sponsor').value,
-    contact: document.getElementById('f-contact').value,
-    email: document.getElementById('f-email').value,
-    phone: document.getElementById('f-phone').value,
-    country: document.getElementById('f-country').value,
-    address: document.getElementById('f-address').value,
-    title: document.getElementById('f-title').value,
-    indication: document.getElementById('f-indication').value,
-    phase: document.getElementById('f-phase').value,
-    startDate: document.getElementById('f-start').value,
-    endDate: document.getElementById('f-end').value,
-    scope: document.getElementById('f-scope').value,
-    pm: document.getElementById('f-pm').value,
-    cra: document.getElementById('f-cra').value,
-    dept: document.getElementById('f-dept').value,
-    milestones: [...milestones], status: 'Active'
-  };
-  projects.unshift(project);
-  localStorage.setItem('ctms_projects', JSON.stringify(projects));
-  setTimeout(() => {
-    btn.innerHTML = '<i class="ti ti-circle-check"></i> Saved!';
-    btn.style.background = 'var(--green)'; btn.style.borderColor = 'var(--green)';
-    setTimeout(() => {
-      showView('projects');
-      btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> Save to CTMS';
-      btn.style.background = ''; btn.style.borderColor = '';
-    }, 1000);
-  }, 600);
-}
+function filterProjects() { renderProjects(); }
 
 function renderProjects() {
-  const list = document.getElementById('proj-list');
-  if (!projects.length) {
-    list.innerHTML = `<div class="empty-state"><i class="ti ti-folder-open"></i><p>No projects yet. Create a new proposal to get started.</p><button class="btn btn-primary" onclick="startNewProposal()"><i class="ti ti-plus"></i> New proposal</button></div>`;
-    return;
-  }
-  list.innerHTML = projects.map(p => {
-    const total = p.milestones.reduce((s,m)=>s+(m.amount||0),0);
-    const saved = new Date(p.savedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
-    return `<div class="proj-card">
-      <div class="proj-card-info">
-        <div class="proj-card-title">${escHtml(p.title)||'(Untitled)'}</div>
-        <div class="proj-card-meta">
-          <span><i class="ti ti-building" style="font-size:12px;vertical-align:-1px"></i> ${escHtml(p.sponsor)||'—'}</span>
-          <span><i class="ti ti-user" style="font-size:12px;vertical-align:-1px"></i> ${escHtml(p.pm)||'—'}</span>
-          <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> ${p.startDate||'—'} → ${p.endDate||'—'}</span>
-          <span>Saved ${saved}</span>
-        </div>
+  const q = (document.getElementById('proj-search-input').value||'').toLowerCase();
+  const stFilter = document.getElementById('proj-status-filter').value;
+  const spFilter = document.getElementById('proj-sponsor-filter').value;
+
+  // Populate sponsor filter
+  const spNames = [...new Set(projects.map(p=>p.sponsor))].sort();
+  const sf = document.getElementById('proj-sponsor-filter');
+  const prevSp = sf.value;
+  sf.innerHTML = '<option value="">All Sponsors</option>' + spNames.map(s=>`<option value="${s}" ${s===prevSp?'selected':''}>${s}</option>`).join('');
+
+  // KPI counts
+  const statusList = ['Ongoing','Proposal','Work Order Sent','On Hold','Completed','Cancelled'];
+  document.getElementById('proj-kpi-row').innerHTML = statusList.map(st => {
+    const cnt = projects.filter(p=>p.status===st).length;
+    const ss = STATUS_STYLES[st] || {};
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.875rem 1rem;cursor:pointer;transition:box-shadow .12s" onclick="quickFilterStatus('${st}')">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${ss.dot||'#999'}"></div>
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">${st}</div>
       </div>
-      <div class="proj-card-right">
-        <span class="badge badge-green">${escHtml(p.status)}</span>
-        <span style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace">$${total.toLocaleString()}</span>
-        <span style="font-size:11px;color:var(--text3)">${p.milestones.length} milestones</span>
-      </div>
+      <div style="font-size:22px;font-weight:700;color:var(--text);font-family:'DM Mono',monospace">${cnt}</div>
     </div>`;
+  }).join('');
+
+  let filtered = projects.filter(p => {
+    const match = !q || [p.pid,p.sponsor,p.invProduct,p.desc,p.sponsorNo,p.internalNo].some(v=>(v||'').toLowerCase().includes(q));
+    const stMatch = !stFilter || p.status === stFilter;
+    const spMatch = !spFilter || p.sponsor === spFilter;
+    return match && stMatch && spMatch;
+  });
+
+  filtered.sort((a,b) => {
+    const av = (a[projSortCol]||'').toString().toLowerCase();
+    const bv = (b[projSortCol]||'').toString().toLowerCase();
+    return projSortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  document.getElementById('proj-count-sub').textContent = `${projects.length} projects total · ${filtered.length} shown`;
+  const tbody = document.getElementById('proj-tbody');
+  const empty = document.getElementById('proj-empty');
+
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  tbody.innerHTML = filtered.map(p => {
+    const ss = STATUS_STYLES[p.status] || { bg:'var(--surface2)', color:'var(--text3)', dot:'var(--text3)' };
+    const start = p.startDate ? new Date(p.startDate).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—';
+    return `<tr>
+      <td style="padding:11px 16px">
+        <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--blue)">${escHtml(p.pid)}</span>
+      </td>
+      <td style="padding:11px 16px">
+        <span style="font-size:13px;font-weight:500">${escHtml(p.sponsor)}</span>
+      </td>
+      <td style="padding:11px 16px">
+        ${p.invProduct ? `<span style="font-size:12px;background:var(--surface2);padding:3px 8px;border-radius:6px;font-weight:500">${escHtml(p.invProduct)}</span>` : '<span style="color:var(--text3)">—</span>'}
+      </td>
+      <td style="padding:11px 16px;font-size:13px;color:var(--text2);max-width:280px">
+        <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px" title="${escHtml(p.desc)}">${escHtml(p.desc)||'—'}</div>
+      </td>
+      <td style="padding:11px 16px;font-size:12px;color:var(--text2);white-space:nowrap">${start}</td>
+      <td style="padding:11px 16px">
+        <span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;background:${ss.bg};color:${ss.color}">
+          <span style="width:6px;height:6px;border-radius:50%;background:${ss.dot};flex-shrink:0"></span>
+          ${p.status}
+        </span>
+      </td>
+      <td style="padding:11px 16px">
+        <div style="display:flex;gap:4px">
+          <button class="action-btn" onclick="editProject(${p.id})" title="Edit"><i class="ti ti-edit"></i></button>
+          <button class="action-btn del" onclick="deleteProject(${p.id})" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
   }).join('');
 }
 
+function quickFilterStatus(st) {
+  const el = document.getElementById('proj-status-filter');
+  el.value = el.value === st ? '' : st;
+  filterProjects();
+}
+
+// ─── PROJECT MODAL ────────────────────────────────────────
+function openAddProject() {
+  projEditId = null;
+  document.getElementById('proj-modal-title').textContent = 'Add New Project';
+  ['pm-id','pm-sponsor-no','pm-internal-no','pm-inv-product','pm-desc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('pm-status').value = 'Ongoing';
+  document.getElementById('pm-start').value = '';
+  document.getElementById('pm-end').value = '';
+  // populate sponsor select
+  const sel = document.getElementById('pm-sponsor');
+  sel.innerHTML = '<option value="">— Select Sponsor —</option>' + sponsors.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+  document.getElementById('proj-modal-error').style.display = 'none';
+  document.getElementById('proj-modal-save-btn').innerHTML = '<i class="ti ti-device-floppy"></i> Save project';
+  document.getElementById('project-modal').style.display = 'flex';
+}
+
+function editProject(id) {
+  const p = projects.find(x=>x.id===id); if(!p) return;
+  projEditId = id;
+  document.getElementById('proj-modal-title').textContent = 'Edit Project';
+  document.getElementById('pm-id').value = p.pid||'';
+  document.getElementById('pm-sponsor-no').value = p.sponsorNo||'';
+  document.getElementById('pm-internal-no').value = p.internalNo||'';
+  document.getElementById('pm-inv-product').value = p.invProduct||'';
+  document.getElementById('pm-desc').value = p.desc||'';
+  document.getElementById('pm-status').value = p.status||'Ongoing';
+  document.getElementById('pm-start').value = p.startDate||'';
+  document.getElementById('pm-end').value = p.endDate||'';
+  const sel = document.getElementById('pm-sponsor');
+  sel.innerHTML = '<option value="">— Select Sponsor —</option>' + sponsors.map(s=>`<option value="${s.name}" ${s.name===p.sponsor?'selected':''}>${s.name}</option>`).join('');
+  document.getElementById('proj-modal-error').style.display = 'none';
+  document.getElementById('proj-modal-save-btn').innerHTML = '<i class="ti ti-check"></i> Update project';
+  document.getElementById('project-modal').style.display = 'flex';
+}
+
+function closeProjModal() { document.getElementById('project-modal').style.display = 'none'; }
+
+function saveProject() {
+  const pid = document.getElementById('pm-id').value.trim();
+  const sponsor = document.getElementById('pm-sponsor').value;
+  const errEl = document.getElementById('proj-modal-error');
+  if (!pid) { errEl.textContent='Project ID is required.'; errEl.style.display='block'; return; }
+  if (!sponsor) { errEl.textContent='Sponsor is required.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const data = {
+    pid, sponsor,
+    sponsorNo: document.getElementById('pm-sponsor-no').value.trim(),
+    internalNo: document.getElementById('pm-internal-no').value.trim(),
+    invProduct: document.getElementById('pm-inv-product').value.trim(),
+    desc: document.getElementById('pm-desc').value.trim(),
+    startDate: document.getElementById('pm-start').value,
+    endDate: document.getElementById('pm-end').value,
+    status: document.getElementById('pm-status').value,
+  };
+  if (projEditId) {
+    const idx = projects.findIndex(p=>p.id===projEditId);
+    if (idx !== -1) projects[idx] = { ...projects[idx], ...data };
+  } else {
+    projects.push({ id: Date.now(), ...data });
+  }
+  saveProjects();
+  closeProjModal();
+  renderProjects();
+}
+
+function deleteProject(id) {
+  if (!confirm('Delete this project? This cannot be undone.')) return;
+  projects = projects.filter(p=>p.id!==id);
+  saveProjects();
+  renderProjects();
+}
+
+document.getElementById('project-modal').addEventListener('click', function(e) { if(e.target===this) closeProjModal(); });
+
+// ─── SPONSOR DATA ─────────────────────────────────────────
+const AVATAR_COLORS = ['#2B7CC9','#52941A','#E07A00','#5B3FA6','#0F6B5C','#A32D2D','#0891B2','#B45309'];
+function avatarColor(name) { let h=0; for(let c of name) h=(h*31+c.charCodeAt(0))%AVATAR_COLORS.length; return AVATAR_COLORS[h]; }
+function initials(name) { return name.split(/[\s\/]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+
+let sponsors = JSON.parse(localStorage.getItem('ctms_sponsors') || 'null') || [
+  { id:1, name:'BNPLAB Co., Ltd.', acronym:'BNPLAB', city:'Seoul', country:'South Korea', contact:'Sung Hee Park', email:'shpark@bnplab.kr', phone:'+82-2-555-0000', address:'#1219, Gangnam-gu, Seoul', status:'Active', projects:1 },
+  { id:2, name:'Osstem Vascular Co., Ltd.', acronym:'OSSTEM', city:'Seoul', country:'South Korea', contact:'LIM HWAKYUNG', email:'hklim@bnplab.kr', phone:'+82-2-555-0001', address:'Seoul, South Korea', status:'Active', projects:1 },
+  { id:3, name:'Absology Co., Ltd.', acronym:'ABSOLOGY', city:'Seoul', country:'South Korea', contact:'Dr. Ji-Won Park', email:'j.park@absology.co.kr', phone:'+82-2-555-8210', address:'14F Teheran-ro 152, Gangnam-gu, Seoul', status:'Active', projects:1 },
+  { id:4, name:'Epygenix Therapeutics', acronym:'EPX', city:'San Mateo', country:'United States', contact:'', email:'', phone:'', address:'San Mateo, CA', status:'Active', projects:2 },
+  { id:5, name:'DiaMedica Therapeutics', acronym:'DMCA', city:'Minneapolis', country:'United States', contact:'', email:'', phone:'', address:'Minneapolis, MN', status:'Active', projects:1 },
+  { id:6, name:'Chiesi Farmaceutici S.p.A.', acronym:'CHIESI', city:'Parma', country:'Italy', contact:'', email:'', phone:'', address:'Parma, Italy', status:'Active', projects:1 },
+  { id:7, name:'LAT Research', acronym:'LAT', city:'New York', country:'United States', contact:'', email:'', phone:'', address:'New York, NY', status:'Inactive', projects:1 },
+  { id:8, name:'Atai Therapeutics, Inc.', acronym:'ATAI', city:'Berlin', country:'Germany', contact:'', email:'', phone:'', address:'Berlin, Germany', status:'Active', projects:1 },
+];
+function saveSponsors() { localStorage.setItem('ctms_sponsors', JSON.stringify(sponsors)); }
+
+let sortCol = 'name', sortAsc = true, editId = null;
+
+function sortSponsors(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  renderSponsors();
+}
+
+function filterSponsors() { renderSponsors(); }
+
+function renderSponsors() {
+  const q = (document.getElementById('sponsor-search-input').value||'').toLowerCase();
+  const cFilter = document.getElementById('sponsor-country-filter').value;
+  const sFilter = document.getElementById('sponsor-status-filter').value;
+
+  // Populate country filter
+  const countries = [...new Set(sponsors.map(s=>s.country))].sort();
+  const cf = document.getElementById('sponsor-country-filter');
+  const prev = cf.value;
+  cf.innerHTML = '<option value="">All Countries</option>' + countries.map(c=>`<option value="${c}" ${c===prev?'selected':''}>${c}</option>`).join('');
+
+  let filtered = sponsors.filter(s => {
+    const match = !q || [s.name,s.acronym,s.city,s.country].some(v=>(v||'').toLowerCase().includes(q));
+    const cMatch = !cFilter || s.country === cFilter;
+    const sMatch = !sFilter || s.status === sFilter;
+    return match && cMatch && sMatch;
+  });
+
+  filtered.sort((a,b) => {
+    const av = (a[sortCol]||'').toString().toLowerCase();
+    const bv = (b[sortCol]||'').toString().toLowerCase();
+    return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  document.getElementById('sponsor-count-sub').textContent = `${sponsors.length} sponsors total · ${filtered.length} shown`;
+  const tbody = document.getElementById('sponsor-tbody');
+  const empty = document.getElementById('sponsor-empty');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map((s,i) => `
+    <tr>
+      <td style="padding:12px 16px;color:var(--text3);font-size:12px">${i+1}</td>
+      <td style="padding:12px 16px">
+          <div>
+            <div style="font-weight:600;font-size:13px">${escHtml(s.name)}</div>
+            ${s.contact ? `<div style="font-size:11px;color:var(--text3)">${escHtml(s.contact)}</div>` : ''}
+          </div>
+      </td>
+      <td style="padding:12px 16px"><span style="font-family:'DM Mono',monospace;font-size:12px;background:var(--surface2);padding:3px 8px;border-radius:6px">${escHtml(s.acronym)||'—'}</span></td>
+      <td style="padding:12px 16px;font-size:13px;color:var(--text2)">${escHtml(s.city)||'—'}</td>
+      <td style="padding:12px 16px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:13px">
+          <i class="ti ti-map-pin" style="font-size:13px;color:var(--text3)"></i>
+          ${escHtml(s.country)||'—'}
+        </div>
+      </td>
+      <td style="padding:12px 16px">
+        <span class="badge ${s.status==='Active'?'badge-active':'badge-closed'}">${s.status}</span>
+      </td>
+      <td style="padding:12px 16px;font-size:13px;color:var(--text2);text-align:center">${s.projects||0}</td>
+      <td style="padding:12px 16px">
+        <div style="display:flex;gap:4px">
+          <button class="action-btn" onclick="editSponsor(${s.id})" title="Edit"><i class="ti ti-edit"></i></button>
+          <button class="action-btn del" onclick="deleteSponsor(${s.id})" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ─── MODAL ────────────────────────────────────────────────
+function openAddSponsor() {
+  editId = null;
+  document.getElementById('modal-title').textContent = 'Add New Sponsor';
+  ['m-name','m-acronym','m-city','m-country','m-contact','m-email','m-phone','m-address'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('m-status').value = 'Active';
+  document.getElementById('modal-error').style.display = 'none';
+  document.getElementById('modal-save-btn').innerHTML = '<i class="ti ti-device-floppy"></i> Save sponsor';
+  document.getElementById('sponsor-modal').style.display = 'flex';
+}
+
+function editSponsor(id) {
+  const s = sponsors.find(x=>x.id===id); if (!s) return;
+  editId = id;
+  document.getElementById('modal-title').textContent = 'Edit Sponsor';
+  document.getElementById('m-name').value = s.name||'';
+  document.getElementById('m-acronym').value = s.acronym||'';
+  document.getElementById('m-city').value = s.city||'';
+  document.getElementById('m-country').value = s.country||'';
+  document.getElementById('m-contact').value = s.contact||'';
+  document.getElementById('m-email').value = s.email||'';
+  document.getElementById('m-phone').value = s.phone||'';
+  document.getElementById('m-address').value = s.address||'';
+  document.getElementById('m-status').value = s.status||'Active';
+  document.getElementById('modal-error').style.display = 'none';
+  document.getElementById('modal-save-btn').innerHTML = '<i class="ti ti-check"></i> Update sponsor';
+  document.getElementById('sponsor-modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('sponsor-modal').style.display = 'none'; }
+
+function saveSponsor() {
+  const name = document.getElementById('m-name').value.trim();
+  const country = document.getElementById('m-country').value.trim();
+  const errEl = document.getElementById('modal-error');
+  if (!name) { errEl.textContent = 'Company name is required.'; errEl.style.display='block'; return; }
+  if (!country) { errEl.textContent = 'Country is required.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  const data = {
+    name, acronym: document.getElementById('m-acronym').value.trim(),
+    city: document.getElementById('m-city').value.trim(), country,
+    contact: document.getElementById('m-contact').value.trim(),
+    email: document.getElementById('m-email').value.trim(),
+    phone: document.getElementById('m-phone').value.trim(),
+    address: document.getElementById('m-address').value.trim(),
+    status: document.getElementById('m-status').value, projects: 0,
+  };
+  if (editId) {
+    const idx = sponsors.findIndex(s=>s.id===editId);
+    if (idx !== -1) sponsors[idx] = { ...sponsors[idx], ...data };
+  } else {
+    sponsors.push({ id: Date.now(), ...data });
+  }
+  saveSponsors();
+  closeModal();
+  renderSponsors();
+}
+
+function deleteSponsor(id) {
+  if (!confirm('Delete this sponsor? This cannot be undone.')) return;
+  sponsors = sponsors.filter(s=>s.id!==id);
+  saveSponsors();
+  renderSponsors();
+}
+
+// Close modal on overlay click
+document.getElementById('sponsor-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
 function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-renderProjects();
+const COLORS = {
+  blue: '#2B7CC9', green: '#52941A', amber: '#E07A00',
+  purple: '#5B3FA6', teal: '#0F6B5C', red: '#A32D2D',
+  gray: '#9A9A96'
+};
+
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.color = '#9A9A96';
+
+// Revenue by Sponsor (horizontal bar)
+new Chart(document.getElementById('chart-sponsor'), {
+  type: 'bar',
+  data: {
+    labels: ['Epygenix', 'DiaMedica', 'Absology', 'Chiesi', 'LAT Research', 'BNPLAB'],
+    datasets: [{
+      data: [320000, 95000, 145500, 75000, 48000, 50000],
+      backgroundColor: [COLORS.blue, COLORS.amber, COLORS.green, COLORS.purple, COLORS.teal, COLORS.red],
+      borderRadius: 5, borderSkipped: false,
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// Projects by Phase (doughnut)
+new Chart(document.getElementById('chart-phase'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Pre-Sub', 'Phase I', 'Phase I/II', 'Phase II', 'Phase III', 'NDA/BLA'],
+    datasets: [{ data: [4, 2, 5, 6, 4, 3], backgroundColor: [COLORS.teal, COLORS.blue, COLORS.green, COLORS.amber, COLORS.purple, COLORS.red], borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+  },
+  options: {
+    cutout: '65%', plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } }
+    }
+  }
+});
+
+// Hours by Department (doughnut)
+new Chart(document.getElementById('chart-dept'), {
+  type: 'doughnut',
+  data: {
+    labels: ['RO', 'SD', 'DM', 'QC', 'RS', 'SC', 'INT'],
+    datasets: [{ data: [2800, 1900, 1200, 950, 620, 540, 330], backgroundColor: [COLORS.blue, COLORS.green, COLORS.teal, COLORS.amber, COLORS.purple, COLORS.red, COLORS.gray], borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+  },
+  options: {
+    cutout: '65%', plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 10, padding: 8, font: { size: 11 } } }
+    }
+  }
+});
+
+// Monthly Revenue Trend (line)
+new Chart(document.getElementById('chart-revenue'), {
+  type: 'bar',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+    datasets: [
+      { label: 'Billed', data: [420000, 380000, 510000, 470000, 390000], backgroundColor: 'rgba(43,124,201,.15)', borderColor: COLORS.blue, borderWidth: 2, borderRadius: 5, type: 'bar' },
+      { label: 'Collected', data: [380000, 310000, 490000, 420000, 210000], backgroundColor: COLORS.green, borderRadius: 5, type: 'bar' }
+    ]
+  },
+  options: {
+    responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11 } } } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
+    }
+  }
+});
+
+// Milestone Payment Status (stacked bar)
+new Chart(document.getElementById('chart-milestone-status'), {
+  type: 'bar',
+  data: {
+    labels: ['BNPLAB', 'Absology', 'Epygenix', 'DiaMedica', 'Chiesi', 'LAT'],
+    datasets: [
+      { label: 'Paid', data: [1, 4, 6, 4, 3, 2], backgroundColor: COLORS.green, borderRadius: 0 },
+      { label: 'Pending', data: [1, 2, 1, 1, 1, 1], backgroundColor: COLORS.amber },
+      { label: 'Overdue', data: [1, 0, 0, 1, 0, 0], backgroundColor: COLORS.red },
+      { label: 'Upcoming', data: [0, 1, 0, 0, 1, 1], backgroundColor: '#E0DEDB' }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11 } } } },
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { stepSize: 1 } }
+    }
+  }
+});
+
+// ─── INVESTIGATOR DATA ────────────────────────────────────
+let investigators = JSON.parse(localStorage.getItem('ctms_investigators') || 'null') || [
+  { id:1, name:'Dr. Ji-Won Park', specialty:'Regulatory Medicine', institution:'BNPLAB Co., Ltd.', country:'South Korea', email:'j.park@absology.co.kr', phone:'+82-2-555-8210', role:'Principal Investigator', project:'ABSO-25002' },
+  { id:2, name:'Dr. Sung Hee Park', specialty:'Clinical Research', institution:'BNPLAB Co., Ltd.', country:'South Korea', email:'shpark@bnplab.kr', phone:'+82-2-555-0000', role:'Sub-Investigator', project:'BNPLAB-26001' },
+  { id:3, name:'Dr. Michael Chen', specialty:'Neurology', institution:'Stanford Medical Center', country:'United States', email:'m.chen@stanford.edu', phone:'+1-650-723-0000', role:'Principal Investigator', project:'EPX-25001' },
+  { id:4, name:'Dr. Sarah Williams', specialty:'Cardiology', institution:'Johns Hopkins Hospital', country:'United States', email:'s.williams@jhu.edu', phone:'+1-410-955-0000', role:'Principal Investigator', project:'DMCA-25001' },
+  { id:5, name:'Dr. Marco Rossi', specialty:'Pulmonology', institution:'Università di Parma', country:'Italy', email:'m.rossi@unipr.it', phone:'+39-0521-000000', role:'Co-Investigator', project:'CHIESI-24001' },
+  { id:6, name:'Dr. Yuki Tanaka', specialty:'Biostatistics', institution:'Target Health', country:'United States', email:'y.tanaka@targethealth.com', phone:'+1-212-681-2100', role:'Sub-Investigator', project:'ABSO-25002' },
+];
+function saveInvestigators() { localStorage.setItem('ctms_investigators', JSON.stringify(investigators)); }
+
+let invSortCol = 'name', invSortAsc = true, invEditId = null;
+
+function sortInvestigators(col) {
+  if (invSortCol === col) invSortAsc = !invSortAsc; else { invSortCol = col; invSortAsc = true; }
+  renderInvestigators();
+}
+function filterInvestigators() { renderInvestigators(); }
+
+function renderInvestigators() {
+  const q = (document.getElementById('inv-search-input').value||'').toLowerCase();
+  const spFilter = document.getElementById('inv-specialty-filter').value;
+  const coFilter = document.getElementById('inv-country-filter').value;
+
+  // Populate filters
+  const specs = [...new Set(investigators.map(i=>i.specialty).filter(Boolean))].sort();
+  const sf = document.getElementById('inv-specialty-filter');
+  const prevSp = sf.value;
+  sf.innerHTML = '<option value="">All Specialties</option>' + specs.map(s=>`<option value="${s}" ${s===prevSp?'selected':''}>${s}</option>`).join('');
+
+  const cntrs = [...new Set(investigators.map(i=>i.country).filter(Boolean))].sort();
+  const cf = document.getElementById('inv-country-filter');
+  const prevCo = cf.value;
+  cf.innerHTML = '<option value="">All Countries</option>' + cntrs.map(c=>`<option value="${c}" ${c===prevCo?'selected':''}>${c}</option>`).join('');
+
+  let filtered = investigators.filter(inv => {
+    const match = !q || [inv.name,inv.specialty,inv.institution,inv.country,inv.email].some(v=>(v||'').toLowerCase().includes(q));
+    const spMatch = !spFilter || inv.specialty === spFilter;
+    const coMatch = !coFilter || inv.country === coFilter;
+    return match && spMatch && coMatch;
+  });
+
+  filtered.sort((a,b) => {
+    const av = (a[invSortCol]||'').toLowerCase();
+    const bv = (b[invSortCol]||'').toLowerCase();
+    return invSortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+  });
+
+  document.getElementById('inv-count-sub').textContent = `${investigators.length} investigators total · ${filtered.length} shown`;
+  const tbody = document.getElementById('inv-tbody');
+  const empty = document.getElementById('inv-empty');
+
+  const ROLE_STYLE = {
+    'Principal Investigator': { bg:'var(--blue-light)',   color:'var(--blue)' },
+    'Sub-Investigator':       { bg:'var(--green-light)',  color:'var(--green)' },
+    'Co-Investigator':        { bg:'var(--purple-light)', color:'var(--purple)' },
+  };
+
+  if (!filtered.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(inv => {
+    const rs = ROLE_STYLE[inv.role] || { bg:'var(--surface2)', color:'var(--text3)' };
+    return `<tr>
+      <td style="padding:11px 16px;font-weight:600;font-size:13px">${escHtml(inv.name)}</td>
+      <td style="padding:11px 16px;font-size:13px;color:var(--text2)">${escHtml(inv.specialty)||'—'}</td>
+      <td style="padding:11px 16px;font-size:13px;font-weight:500">${escHtml(inv.institution)||'—'}</td>
+      <td style="padding:11px 16px">
+        <div style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2)">
+          <i class="ti ti-map-pin" style="font-size:13px;color:var(--text3)"></i>
+          ${escHtml(inv.country)||'—'}
+        </div>
+      </td>
+      <td style="padding:11px 16px">
+        ${inv.email ? `<a href="mailto:${escHtml(inv.email)}" style="font-size:12px;color:var(--blue);text-decoration:none">${escHtml(inv.email)}</a>` : '<span style="color:var(--text3)">—</span>'}
+      </td>
+      <td style="padding:11px 16px;font-size:12px;color:var(--text2)">${escHtml(inv.phone)||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddInvestigator() {
+  invEditId = null;
+  document.getElementById('inv-modal-title').textContent = 'Add New Investigator';
+  ['im-name','im-specialty','im-institution','im-country','im-email','im-phone'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('im-role').value = 'Principal Investigator';
+  const psel = document.getElementById('im-project');
+  psel.innerHTML = '<option value="">— Select Project —</option>' + projects.map(p=>`<option value="${p.pid}">${p.pid} – ${p.sponsor}</option>`).join('');
+  document.getElementById('inv-modal-error').style.display = 'none';
+  document.getElementById('inv-modal-save-btn').innerHTML = '<i class="ti ti-device-floppy"></i> Save investigator';
+  document.getElementById('inv-modal').style.display = 'flex';
+}
+
+function editInvestigator(id) {
+  const inv = investigators.find(x=>x.id===id); if(!inv) return;
+  invEditId = id;
+  document.getElementById('inv-modal-title').textContent = 'Edit Investigator';
+  document.getElementById('im-name').value = inv.name||'';
+  document.getElementById('im-specialty').value = inv.specialty||'';
+  document.getElementById('im-institution').value = inv.institution||'';
+  document.getElementById('im-country').value = inv.country||'';
+  document.getElementById('im-email').value = inv.email||'';
+  document.getElementById('im-phone').value = inv.phone||'';
+  document.getElementById('im-role').value = inv.role||'Principal Investigator';
+  const psel = document.getElementById('im-project');
+  psel.innerHTML = '<option value="">— Select Project —</option>' + projects.map(p=>`<option value="${p.pid}" ${p.pid===inv.project?'selected':''}>${p.pid} – ${p.sponsor}</option>`).join('');
+  document.getElementById('inv-modal-error').style.display = 'none';
+  document.getElementById('inv-modal-save-btn').innerHTML = '<i class="ti ti-check"></i> Update investigator';
+  document.getElementById('inv-modal').style.display = 'flex';
+}
+
+function closeInvModal() { document.getElementById('inv-modal').style.display = 'none'; }
+
+function saveInvestigator() {
+  const name = document.getElementById('im-name').value.trim();
+  const errEl = document.getElementById('inv-modal-error');
+  if (!name) { errEl.textContent='Name is required.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  const data = {
+    name,
+    specialty: document.getElementById('im-specialty').value.trim(),
+    institution: document.getElementById('im-institution').value.trim(),
+    country: document.getElementById('im-country').value.trim(),
+    email: document.getElementById('im-email').value.trim(),
+    phone: document.getElementById('im-phone').value.trim(),
+    role: document.getElementById('im-role').value,
+    project: document.getElementById('im-project').value,
+  };
+  if (invEditId) {
+    const idx = investigators.findIndex(i=>i.id===invEditId);
+    if (idx !== -1) investigators[idx] = { ...investigators[idx], ...data };
+  } else {
+    investigators.push({ id: Date.now(), ...data });
+  }
+  saveInvestigators();
+  closeInvModal();
+  renderInvestigators();
+}
+
+function deleteInvestigator(id) {
+  if (!confirm('Delete this investigator? This cannot be undone.')) return;
+  investigators = investigators.filter(i=>i.id!==id);
+  saveInvestigators();
+  renderInvestigators();
+}
+
+document.getElementById('inv-modal').addEventListener('click', function(e) { if(e.target===this) closeInvModal(); });
 </script>
 </body>
 </html>
