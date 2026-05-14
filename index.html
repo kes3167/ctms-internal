@@ -215,6 +215,13 @@ tbody tr:hover td { background: var(--blue-pale); }
 .det-content-title { font-size:14px;font-weight:600;color:var(--text);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border2); }
 .det-empty-state { text-align:center;padding:3rem 1rem;color:var(--text3); }
 .det-empty-state p { font-size:13px; }
+
+/* ── REPORTS ── */
+.report-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.125rem;cursor:pointer;transition:border-color .12s,box-shadow .12s;display:flex;align-items:center;justify-content:space-between;gap:10px; }
+.report-card:hover { border-color:var(--blue-mid);box-shadow:0 2px 8px rgba(0,0,0,.06); }
+.report-card:hover i { color:var(--blue); }
+.report-card-name { font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px; }
+.report-card-desc { font-size:11px;color:var(--text3); }
 </style>
 </head>
 <body>
@@ -233,7 +240,7 @@ tbody tr:hover td { background: var(--blue-pale); }
     <a class="nav-item" onclick="showPage('projects')" id="nav-projects"><i class="ti ti-folder-open"></i> Projects</a>
     <a class="nav-item" onclick="showPage('investigators')" id="nav-investigators"><i class="ti ti-user-md"></i> Investigators</a>
     <a class="nav-item" onclick="showPage('irb')" id="nav-irb"><i class="ti ti-certificate"></i> IRB/IEC</a>
-    <a class="nav-item"><i class="ti ti-chart-bar"></i> Reports</a>
+    <a class="nav-item" onclick="showPage('reports')" id="nav-reports"><i class="ti ti-chart-bar"></i> Reports</a>
 
     <div class="sidebar-section" style="margin-top:.5rem">Tools & Utils</div>
     <a class="nav-item"><i class="ti ti-tool"></i> Tools</a>
@@ -283,12 +290,21 @@ tbody tr:hover td { background: var(--blue-pale); }
     <div class="content-header">
       <div>
         <div class="content-title">Overview</div>
-        <div class="content-sub">All active projects and financials at a glance</div>
+        <div class="content-sub" id="dash-sub">All active projects and financials at a glance</div>
       </div>
-      <div class="date-filter">
-        <button class="filter-btn">Q1 2026</button>
-        <button class="filter-btn active">YTD 2026</button>
-        <button class="filter-btn">All time</button>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <!-- 스폰서 필터 -->
+        <div style="display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px">
+          <i class="ti ti-building" style="font-size:13px;color:var(--text3)"></i>
+          <select id="dash-sponsor-filter" onchange="applyDashFilter()" style="border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;cursor:pointer;min-width:140px">
+            <option value="">All Sponsors</option>
+          </select>
+        </div>
+        <div class="date-filter">
+          <button class="filter-btn">Q1 2026</button>
+          <button class="filter-btn active">YTD 2026</button>
+          <button class="filter-btn">All time</button>
+        </div>
       </div>
     </div>
 
@@ -354,19 +370,19 @@ tbody tr:hover td { background: var(--blue-pale); }
             </tr></thead>
             <tbody>
               <tr>
-                <td><div class="sponsor-name">BNPLAB / Osstem Vascular</div><div class="sponsor-study">CENTUM – FDA Pre-Sub</div></td>
+                <td><div class="sponsor-name">Veralux Biomedical</div><div class="sponsor-study">VLX-200 – Coronary Device Pre-Sub</div></td>
                 <td><span class="badge badge-active">Active</span></td>
                 <td class="mono">$50,000</td><td class="mono">$25,500</td>
                 <td><div class="prog-bar"><div class="prog-fill" style="width:51%;background:var(--green-mid)"></div></div></td>
               </tr>
               <tr>
-                <td><div class="sponsor-name">Absology Co., Ltd.</div><div class="sponsor-study">Phase I/II – VitD</div></td>
+                <td><div class="sponsor-name">Nexaphar Inc.</div><div class="sponsor-study">NXP-101 – Phase I/II IND support</div></td>
                 <td><span class="badge badge-active">Active</span></td>
                 <td class="mono">$145,500</td><td class="mono">$75,500</td>
                 <td><div class="prog-bar"><div class="prog-fill" style="width:52%;background:var(--blue-mid)"></div></div></td>
               </tr>
               <tr>
-                <td><div class="sponsor-name">Epygenix Therapeutics</div><div class="sponsor-study">Phase III NDA</div></td>
+                <td><div class="sponsor-name">Orexagen Therapeutics</div><div class="sponsor-study">ORX-300 – Phase III NDA</div></td>
                 <td><span class="badge badge-active">Active</span></td>
                 <td class="mono">$320,000</td><td class="mono">$280,000</td>
                 <td><div class="prog-bar"><div class="prog-fill" style="width:87%;background:var(--green-mid)"></div></div></td>
@@ -384,22 +400,22 @@ tbody tr:hover td { background: var(--blue-pale); }
         <div class="ms-list">
           <div class="ms-item">
             <div class="ms-dot" style="background:#E07A00"></div>
-            <div class="ms-info"><div class="ms-name">IND submission to FDA</div><div class="ms-sponsor">Absology Co., Ltd.</div></div>
+            <div class="ms-info"><div class="ms-name">IND submission to FDA</div><div class="ms-sponsor">Nexaphar Inc.</div></div>
             <div style="text-align:right"><div class="ms-amount">$30,000</div><div class="ms-date">May 30</div></div>
           </div>
           <div class="ms-item">
             <div class="ms-dot" style="background:var(--red)"></div>
-            <div class="ms-info"><div class="ms-name">Q-Submission Package</div><div class="ms-sponsor">BNPLAB / Osstem</div></div>
+            <div class="ms-info"><div class="ms-name">Q-Submission Package</div><div class="ms-sponsor">Veralux Biomedical</div></div>
             <div style="text-align:right"><div class="ms-amount">$12,500</div><div class="ms-date" style="color:var(--red);font-weight:600">Overdue</div></div>
           </div>
           <div class="ms-item">
             <div class="ms-dot" style="background:var(--green-mid)"></div>
-            <div class="ms-info"><div class="ms-name">Phase II Interim Analysis</div><div class="ms-sponsor">DiaMedica</div></div>
+            <div class="ms-info"><div class="ms-name">Phase II Interim Analysis</div><div class="ms-sponsor">Marevo Pharma</div></div>
             <div style="text-align:right"><div class="ms-amount">$18,000</div><div class="ms-date">Jun 15</div></div>
           </div>
           <div class="ms-item">
             <div class="ms-dot" style="background:var(--blue-mid)"></div>
-            <div class="ms-info"><div class="ms-name">NDA Filing – Final</div><div class="ms-sponsor">Epygenix</div></div>
+            <div class="ms-info"><div class="ms-name">NDA Filing – Final</div><div class="ms-sponsor">Orexagen Therapeutics</div></div>
             <div style="text-align:right"><div class="ms-amount">$40,000</div><div class="ms-date">Jul 1</div></div>
           </div>
         </div>
@@ -535,7 +551,7 @@ tbody tr:hover td { background: var(--blue-pale); }
     </div>
 
     <!-- 프로젝트 헤더 -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border2)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding:1.25rem 1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)">
       <div>
         <div id="det-pid" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--blue);background:var(--blue-light);padding:3px 9px;border-radius:99px;display:inline-block;margin-bottom:5px"></div>
         <div id="det-sponsor" style="font-size:17px;font-weight:600;color:var(--text)"></div>
@@ -678,6 +694,52 @@ tbody tr:hover td { background: var(--blue-pale); }
     </div>
   </div><!-- /irb -->
 
+  <!-- ─── REPORTS PAGE ─── -->
+  <div id="page-reports" class="content" style="display:none">
+    <div class="content-header">
+      <div>
+        <div class="content-title">Reports</div>
+        <div class="content-sub">Select a report to view or export</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:.75rem;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Project</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.75rem">
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">Projects</div><div class="report-card-desc">All projects summary</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">Deliverables</div><div class="report-card-desc">Deliverable status by project</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">Payment Milestones</div><div class="report-card-desc">Milestone schedule & payments</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">Milestone Summary</div><div class="report-card-desc">Aggregated milestone overview</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+    </div>
+
+    <div style="margin-bottom:.75rem;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Partners & Institutions</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">Sponsors</div><div class="report-card-desc">Sponsor list & project status</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">Investigators</div><div class="report-card-desc">Investigator roster by project</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+      <div class="report-card" onclick="">
+        <div><div class="report-card-name">IRB/IEC</div><div class="report-card-desc">Ethics committee records</div></div>
+        <i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3)"></i>
+      </div>
+    </div>
+  </div><!-- /reports -->
+
 </div><!-- /main -->
 
 <!-- ─── ADD SPONSOR MODAL ─── -->
@@ -778,7 +840,26 @@ tbody tr:hover td { background: var(--blue-pale); }
     </div>
     <div style="margin-top:.25rem">
       <div class="field-modal"><label>Description</label>
-        <textarea id="pm-desc" rows="3" placeholder="Brief project description..." style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;width:100%;outline:none;resize:none;color:var(--text)"></textarea>
+        <textarea id="pm-desc" rows="2" placeholder="Brief project description..." style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;width:100%;outline:none;resize:none;color:var(--text)"></textarea>
+      </div>
+    </div>
+    <div class="field-row-modal" style="margin-top:.75rem">
+      <div class="field-modal"><label>Billing Type</label>
+        <select id="pm-billing-type">
+          <option value="">— Select —</option>
+          <option value="Fixed Fee">Fixed Fee</option>
+          <option value="Hourly">Hourly</option>
+          <option value="Milestone">Milestone</option>
+          <option value="Pass-through">Pass-through</option>
+        </select>
+      </div>
+      <div class="field-modal"><label>Created By</label>
+        <input id="pm-created-by" placeholder="e.g. Sarah Mitchell">
+      </div>
+    </div>
+    <div style="margin-top:.25rem">
+      <div class="field-modal"><label>Comment</label>
+        <textarea id="pm-comment" rows="2" placeholder="Additional comments..." style="font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;width:100%;outline:none;resize:none;color:var(--text)"></textarea>
       </div>
     </div>
     <div id="proj-modal-error" style="display:none;margin-top:.75rem;padding:.75rem 1rem;background:var(--red-light);border-radius:var(--radius-sm);font-size:13px;color:var(--red)"></div>
@@ -863,16 +944,49 @@ tbody tr:hover td { background: var(--blue-pale); }
 // Today's date
 document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
 
-// ─── PAGE SWITCHING ───────────────────────────────────────
+// ─── DASHBOARD SPONSOR FILTER ────────────────────────────
+function initDashFilter() {
+  const sel = document.getElementById('dash-sponsor-filter');
+  if (!sel) return;
+  const names = [...new Set(sponsors.map(s => s.name))].sort();
+  sel.innerHTML = '<option value="">All Sponsors</option>' +
+    names.map(n => `<option value="${n}">${n}</option>`).join('');
+}
+
+function applyDashFilter() {
+  const sel = document.getElementById('dash-sponsor-filter');
+  const val = sel ? sel.value : '';
+  const sub = document.getElementById('dash-sub');
+  if (val) {
+    sub.textContent = `Showing: ${val}`;
+    sub.style.color = 'var(--blue)';
+  } else {
+    sub.textContent = 'All active projects and financials at a glance';
+    sub.style.color = '';
+  }
+  // Active Sponsors 테이블 필터링
+  const rows = document.querySelectorAll('#page-dashboard tbody tr');
+  rows.forEach(row => {
+    const sponsorCell = row.cells[0];
+    if (!sponsorCell) return;
+    if (!val || sponsorCell.textContent.toLowerCase().includes(val.toLowerCase())) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
 function showPage(page) {
-  ['dashboard','sponsors','projects','project-detail','investigators','irb'].forEach(p => {
+  ['dashboard','sponsors','projects','project-detail','investigators','irb','reports'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? 'block' : 'none';
   });
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  if (page === 'dashboard')     { initDashFilter(); }
   if (page === 'sponsors')      { document.getElementById('nav-sponsors').classList.add('active'); renderSponsors(); }
   if (page === 'projects')      { document.getElementById('nav-projects').classList.add('active'); renderProjects(); }
   if (page === 'investigators') { document.getElementById('nav-investigators').classList.add('active'); renderInvestigators(); }
   if (page === 'irb')           { document.getElementById('nav-irb').classList.add('active'); renderIRB(); }
+  if (page === 'reports')       { document.getElementById('nav-reports').classList.add('active'); }
   if (page === 'projects' || page === 'project-detail') { document.getElementById('nav-projects').classList.add('active'); }
 }
 
@@ -902,37 +1016,23 @@ function openProjectDetail(id) {
 
   // 메트릭
   document.getElementById('det-metrics').innerHTML = `
-    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Project ID</div>
       <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--blue)">${p.pid}</div>
     </div>
-    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Sponsor No.</div>
       <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">${p.sponsorNo||'—'}</div>
     </div>
-    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Internal No.</div>
       <div style="font-size:14px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">${p.internalNo||'—'}</div>
     </div>
-    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px">
       <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">Department</div>
       <div style="font-size:13px;font-weight:600;color:var(--text)">${p.dept||'—'}</div>
     </div>`;
 
-  // 카테고리 프리뷰 업데이트
-  document.getElementById('prev-info').textContent = `${p.pid} · ${p.sponsor||'—'}`;
-  document.getElementById('prev-inv-product').textContent = p.invProduct || 'Not set';
-  document.getElementById('prev-project-plan').textContent = `${start} – ${end}`;
-  document.getElementById('prev-project-team').textContent = p.pm ? `PM: ${p.pm}` : 'Not assigned';
-  document.getElementById('prev-rate-card').textContent = p.dept || '—';
-  document.getElementById('prev-milestones').textContent = 'View milestones';
-  document.getElementById('prev-job-codes').textContent = p.sponsorNo || '—';
-
-  // 배지
-  const setBadge = (id, text, type) => {
-    const el = document.getElementById(id);
-    if (el) { el.textContent = text; el.className = 'det-cat-badge det-badge-' + type; }
-  };
   // 배지 업데이트
   const setBadge = (id, text) => {
     const el = document.getElementById(id);
@@ -980,17 +1080,20 @@ function renderDetContent(key, p) {
 
   const contents = {
     'info': `
-      <div class="det-content-title"><i class="ti ti-info-circle"></i> Project Info</div>
-      ${infoRow('Project ID', `<span style="font-family:'DM Mono',monospace;color:var(--blue)">${p.pid}</span>`)}
-      ${infoRow('Sponsor', p.sponsor)}
-      ${infoRow('Sponsor No.', p.sponsorNo)}
-      ${infoRow('Internal No.', p.internalNo)}
-      ${infoRow('Inv. Product', p.invProduct)}
-      ${infoRow('Status', `<span style="padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;background:${ss.bg};color:${ss.color}">${p.status}</span>`)}
-      ${infoRow('Start date', p.startDate)}
-      ${infoRow('End date', p.endDate)}
-      ${infoRow('Department', p.dept)}
-      ${infoRow('Description', `<span style="color:var(--text2);font-weight:400;font-size:12px">${p.desc||'—'}</span>`)}`,
+      <div class="det-content-title">Project Info</div>
+      ${infoRow('Project ID', `<span style="font-family:'DM Mono',monospace;color:var(--blue)">${p.pid||'—'}</span>`)}
+      ${infoRow('Sponsor', p.sponsor||'—')}
+      ${infoRow('Sponsor Project No.', p.sponsorNo||'—')}
+      ${infoRow('Internal Project No.', p.internalNo||'—')}
+      ${infoRow('Investigational Product', p.invProduct||'—')}
+      ${infoRow('Description', `<span style="color:var(--text2);font-weight:400">${p.desc||'—'}</span>`)}
+      ${infoRow('Billing Type', p.billingType||'—')}
+      ${infoRow('Status', `<span style="color:${p.status==='Ongoing'?'var(--green)':p.status==='On Hold'?'var(--amber)':p.status==='Cancelled'?'var(--red)':'var(--text)'}">${p.status||'—'}</span>`)}
+      ${infoRow('Comment', p.comment||'—')}
+      <div style="height:1px;background:var(--border2);margin:10px 0"></div>
+      ${infoRow('Created By', p.createdBy||'—')}
+      ${infoRow('Date Created', p.savedAt ? new Date(p.savedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—')}
+      ${infoRow('Last Updated', p.savedAt ? new Date(p.savedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—')}`,
 
     'inv-product': `
       <div class="det-content-title"><i class="ti ti-package"></i> Inv. Product</div>
@@ -999,11 +1102,46 @@ function renderDetContent(key, p) {
       ${infoRow('Sponsor', p.sponsor)}`,
 
     'project-plan': `
-      <div class="det-content-title"><i class="ti ti-calendar-event"></i> Project Plan</div>
-      ${infoRow('Start date', p.startDate)}
-      ${infoRow('End date', p.endDate)}
-      ${infoRow('Status', p.status)}
-      ${infoRow('PM', p.pm||'Not assigned')}`,
+      <div class="det-content-title">Project Plan</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">General</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Record ID</div><div style="font-size:13px;font-weight:500;color:var(--text)">RPL-${String(p.id).padStart(4,'0')}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Project Manager</div><div style="font-size:13px;font-weight:500;color:var(--text)">${p.pm||'—'}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Services Provided</div><div style="font-size:13px;font-weight:500;color:var(--text3)">—</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">No. of Subjects</div><div style="font-size:13px;font-weight:500;color:var(--text3)">—</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">No. of Countries</div><div style="font-size:13px;font-weight:500;color:var(--text3)">—</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">No. of Sites</div><div style="font-size:13px;font-weight:500;color:var(--text3)">—</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem">
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Final Budget</div><div style="font-size:13px;font-weight:500;color:var(--text3)">—</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Contract Amount</div><div style="font-size:13px;font-weight:500;color:var(--text3)">—</div></div>
+      </div>
+
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Timeline</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:1.25rem">
+        <thead><tr>
+          <th style="text-align:left;padding:6px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border2)">Milestone</th>
+          <th style="padding:6px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border2);text-align:center;width:120px">Expected</th>
+          <th style="padding:6px 10px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border2);text-align:center;width:120px">Actual</th>
+        </tr></thead>
+        <tbody>
+          ${['Project start date','Project end date','Project duration (months)','Enrollment duration (months)','Protocol finalization','First Site Initiation Visit','First Patient Randomized','Last Patient Randomized','Completion of LPLV','Completion of STVs','Database Lock','Clinical Study Report'].map(label =>
+            `<tr>
+              <td style="padding:8px 10px;color:var(--text2);border-bottom:1px solid var(--border2)">${label}</td>
+              <td style="padding:8px 10px;text-align:center;border-bottom:1px solid var(--border2);color:var(--text3)">—</td>
+              <td style="padding:8px 10px;text-align:center;border-bottom:1px solid var(--border2);color:var(--text3)">—</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2)">Record Info</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Created By</div><div style="font-size:13px;font-weight:500;color:var(--text)">${p.createdBy||'—'}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Date Created</div><div style="font-size:13px;font-weight:500;color:var(--text)">${p.savedAt ? new Date(p.savedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—'}</div></div>
+        <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Last Updated</div><div style="font-size:13px;font-weight:500;color:var(--text)">${p.savedAt ? new Date(p.savedAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '—'}</div></div>
+      </div>`,
 
     'project-team': `
       <div class="det-content-title"><i class="ti ti-users"></i> Project Team</div>
@@ -1052,14 +1190,14 @@ const STATUS_STYLES = {
 };
 
 let projects = JSON.parse(localStorage.getItem('ctms_projects_v2') || 'null') || [
-  { id:1, pid:'ABSO-25002', sponsor:'Absology Co., Ltd.', sponsorNo:'SPN-001', internalNo:'INT-2025-001', invProduct:'VitD Test Kit', desc:'Phase I/II – FDA Pre-Submission & IND support', startDate:'2025-03-01', endDate:'2027-02-28', status:'Ongoing' },
-  { id:2, pid:'BNPLAB-26001', sponsor:'BNPLAB Co., Ltd.', sponsorNo:'SPN-002', internalNo:'INT-2026-001', invProduct:'CENTUM Stent', desc:'FDA Pre-Submission Meeting – Everolimus Eluting Coronary Stent', startDate:'2026-01-15', endDate:'2026-12-31', status:'Ongoing' },
-  { id:3, pid:'EPX-25001', sponsor:'Epygenix Therapeutics', sponsorNo:'SPN-003', internalNo:'INT-2025-002', invProduct:'EPX-100', desc:'Phase III NDA – Dravet Syndrome', startDate:'2024-06-01', endDate:'2026-08-31', status:'Ongoing' },
-  { id:4, pid:'DMCA-25001', sponsor:'DiaMedica Therapeutics', sponsorNo:'SPN-004', internalNo:'INT-2025-003', invProduct:'DM-199', desc:'Phase II IND – Ischemic Stroke', startDate:'2025-01-01', endDate:'2026-06-30', status:'On Hold' },
-  { id:5, pid:'CHIESI-24001', sponsor:'Chiesi Farmaceutici S.p.A.', sponsorNo:'SPN-005', internalNo:'INT-2024-001', invProduct:'CHF 5993', desc:'NDA Filing – COPD Triple Therapy', startDate:'2024-03-01', endDate:'2025-12-31', status:'Completed' },
-  { id:6, pid:'LAT-24001', sponsor:'LAT Research', sponsorNo:'SPN-006', internalNo:'INT-2024-002', invProduct:'LAT-01', desc:'Phase I – Safety & Tolerability', startDate:'2024-01-01', endDate:'2024-12-31', status:'Cancelled' },
-  { id:7, pid:'OSSTEM-26001', sponsor:'Osstem Vascular Co., Ltd.', sponsorNo:'SPN-007', internalNo:'INT-2026-002', invProduct:'CENTUM Stent', desc:'Regulatory Strategy – PMA Pathway', startDate:'2026-02-01', endDate:'2026-09-30', status:'Proposal' },
-  { id:8, pid:'ATAI-25001', sponsor:'Atai Therapeutics, Inc.', sponsorNo:'SPN-008', internalNo:'INT-2025-004', invProduct:'PCN-101', desc:'Phase II – Treatment-Resistant Depression', startDate:'2025-07-01', endDate:'2027-06-30', status:'Work Order Sent' },
+  { id:1, pid:'NXP-25001', sponsor:'Nexaphar Inc.', sponsorNo:'SPN-001', internalNo:'INT-2025-001', invProduct:'NXP-101', desc:'Phase I/II – FDA Pre-Submission & IND support', startDate:'2025-03-01', endDate:'2027-02-28', status:'Ongoing', billingType:'Fixed Fee', createdBy:'J. Morgan' },
+  { id:2, pid:'VLX-26001', sponsor:'Veralux Biomedical', sponsorNo:'SPN-002', internalNo:'INT-2026-001', invProduct:'VLX-200', desc:'FDA Pre-Submission Meeting – Coronary Device', startDate:'2026-01-15', endDate:'2026-12-31', status:'Ongoing', billingType:'Milestone', createdBy:'A. Collins' },
+  { id:3, pid:'ORX-25001', sponsor:'Orexagen Therapeutics', sponsorNo:'SPN-003', internalNo:'INT-2025-002', invProduct:'ORX-300', desc:'Phase III NDA – Rare Neurological Disorder', startDate:'2024-06-01', endDate:'2026-08-31', status:'Ongoing', billingType:'Fixed Fee', createdBy:'J. Morgan' },
+  { id:4, pid:'MRV-25001', sponsor:'Marevo Pharma', sponsorNo:'SPN-004', internalNo:'INT-2025-003', invProduct:'MRV-450', desc:'Phase II IND – Cerebrovascular Disease', startDate:'2025-01-01', endDate:'2026-06-30', status:'On Hold', billingType:'Hourly', createdBy:'A. Collins' },
+  { id:5, pid:'KLN-24001', sponsor:'Klinova AG', sponsorNo:'SPN-005', internalNo:'INT-2024-001', invProduct:'KLN-550', desc:'NDA Filing – Respiratory Therapy', startDate:'2024-03-01', endDate:'2025-12-31', status:'Completed', billingType:'Fixed Fee', createdBy:'J. Morgan' },
+  { id:6, pid:'SPR-24001', sponsor:'Spira Research Ltd.', sponsorNo:'SPN-006', internalNo:'INT-2024-002', invProduct:'SPR-010', desc:'Phase I – Safety & Tolerability', startDate:'2024-01-01', endDate:'2024-12-31', status:'Cancelled', billingType:'Hourly', createdBy:'A. Collins' },
+  { id:7, pid:'VLX-26002', sponsor:'Veralux Biomedical', sponsorNo:'SPN-007', internalNo:'INT-2026-002', invProduct:'VLX-210', desc:'Regulatory Strategy – PMA Pathway', startDate:'2026-02-01', endDate:'2026-09-30', status:'Proposal', billingType:'Fixed Fee', createdBy:'J. Morgan' },
+  { id:8, pid:'ZNT-25001', sponsor:'Zentara Medical', sponsorNo:'SPN-008', internalNo:'INT-2025-004', invProduct:'ZNT-620', desc:'Phase II – CNS Indication', startDate:'2025-07-01', endDate:'2027-06-30', status:'Work Order Sent', billingType:'Milestone', createdBy:'A. Collins' },
 ];
 function saveProjects() { localStorage.setItem('ctms_projects_v2', JSON.stringify(projects)); }
 
@@ -1159,7 +1297,7 @@ function quickFilterStatus(st) {
 function openAddProject() {
   projEditId = null;
   document.getElementById('proj-modal-title').textContent = 'Add New Project';
-  ['pm-id','pm-sponsor-no','pm-internal-no','pm-inv-product','pm-desc'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  ['pm-id','pm-sponsor-no','pm-internal-no','pm-inv-product','pm-desc','pm-comment','pm-created-by'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
   document.getElementById('pm-status').value = 'Ongoing';
   document.getElementById('pm-start').value = '';
   document.getElementById('pm-end').value = '';
@@ -1183,6 +1321,9 @@ function editProject(id) {
   document.getElementById('pm-status').value = p.status||'Ongoing';
   document.getElementById('pm-start').value = p.startDate||'';
   document.getElementById('pm-end').value = p.endDate||'';
+  document.getElementById('pm-billing-type').value = p.billingType||'';
+  document.getElementById('pm-comment').value = p.comment||'';
+  document.getElementById('pm-created-by').value = p.createdBy||'';
   const sel = document.getElementById('pm-sponsor');
   sel.innerHTML = '<option value="">— Select Sponsor —</option>' + sponsors.map(s=>`<option value="${s.name}" ${s.name===p.sponsor?'selected':''}>${s.name}</option>`).join('');
   document.getElementById('proj-modal-error').style.display = 'none';
@@ -1208,6 +1349,9 @@ function saveProject() {
     startDate: document.getElementById('pm-start').value,
     endDate: document.getElementById('pm-end').value,
     status: document.getElementById('pm-status').value,
+    billingType: document.getElementById('pm-billing-type').value,
+    comment: document.getElementById('pm-comment').value.trim(),
+    createdBy: document.getElementById('pm-created-by').value.trim(),
   };
   if (projEditId) {
     const idx = projects.findIndex(p=>p.id===projEditId);
@@ -1235,14 +1379,13 @@ function avatarColor(name) { let h=0; for(let c of name) h=(h*31+c.charCodeAt(0)
 function initials(name) { return name.split(/[\s\/]+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
 
 let sponsors = JSON.parse(localStorage.getItem('ctms_sponsors') || 'null') || [
-  { id:1, name:'BNPLAB Co., Ltd.', acronym:'BNPLAB', city:'Seoul', country:'South Korea', contact:'Sung Hee Park', email:'shpark@bnplab.kr', phone:'+82-2-555-0000', address:'#1219, Gangnam-gu, Seoul', status:'Active', projects:1 },
-  { id:2, name:'Osstem Vascular Co., Ltd.', acronym:'OSSTEM', city:'Seoul', country:'South Korea', contact:'LIM HWAKYUNG', email:'hklim@bnplab.kr', phone:'+82-2-555-0001', address:'Seoul, South Korea', status:'Active', projects:1 },
-  { id:3, name:'Absology Co., Ltd.', acronym:'ABSOLOGY', city:'Seoul', country:'South Korea', contact:'Dr. Ji-Won Park', email:'j.park@absology.co.kr', phone:'+82-2-555-8210', address:'14F Teheran-ro 152, Gangnam-gu, Seoul', status:'Active', projects:1 },
-  { id:4, name:'Epygenix Therapeutics', acronym:'EPX', city:'San Mateo', country:'United States', contact:'', email:'', phone:'', address:'San Mateo, CA', status:'Active', projects:2 },
-  { id:5, name:'DiaMedica Therapeutics', acronym:'DMCA', city:'Minneapolis', country:'United States', contact:'', email:'', phone:'', address:'Minneapolis, MN', status:'Active', projects:1 },
-  { id:6, name:'Chiesi Farmaceutici S.p.A.', acronym:'CHIESI', city:'Parma', country:'Italy', contact:'', email:'', phone:'', address:'Parma, Italy', status:'Active', projects:1 },
-  { id:7, name:'LAT Research', acronym:'LAT', city:'New York', country:'United States', contact:'', email:'', phone:'', address:'New York, NY', status:'Inactive', projects:1 },
-  { id:8, name:'Atai Therapeutics, Inc.', acronym:'ATAI', city:'Berlin', country:'Germany', contact:'', email:'', phone:'', address:'Berlin, Germany', status:'Active', projects:1 },
+  { id:1, name:'Nexaphar Inc.', acronym:'NXP', city:'Boston', country:'United States', contact:'Dr. Laura Simmons', email:'l.simmons@nexaphar.com', phone:'+1-617-555-0101', address:'200 Seaport Blvd, Boston, MA 02210', status:'Active', projects:1 },
+  { id:2, name:'Veralux Biomedical', acronym:'VLX', city:'San Diego', country:'United States', contact:'Mr. David Kang', email:'d.kang@veralux.com', phone:'+1-858-555-0202', address:'3450 Science Park, San Diego, CA 92121', status:'Active', projects:2 },
+  { id:3, name:'Orexagen Therapeutics', acronym:'ORX', city:'Chicago', country:'United States', contact:'Dr. Emily Hart', email:'e.hart@orexagen.com', phone:'+1-312-555-0303', address:'875 N Michigan Ave, Chicago, IL 60611', status:'Active', projects:1 },
+  { id:4, name:'Marevo Pharma', acronym:'MRV', city:'Toronto', country:'Canada', contact:'Dr. James Leclair', email:'j.leclair@marevo.ca', phone:'+1-416-555-0404', address:'100 King St W, Toronto, ON M5X 1A1', status:'Active', projects:1 },
+  { id:5, name:'Klinova AG', acronym:'KLN', city:'Basel', country:'Switzerland', contact:'Dr. Petra Müller', email:'p.muller@klinova.ch', phone:'+41-61-555-0505', address:'Grenzacherstrasse 124, 4058 Basel', status:'Active', projects:1 },
+  { id:6, name:'Spira Research Ltd.', acronym:'SPR', city:'London', country:'United Kingdom', contact:'Mr. Tom Ashford', email:'t.ashford@spira.co.uk', phone:'+44-20-555-0606', address:'30 St Mary Axe, London EC3A 8BF', status:'Inactive', projects:1 },
+  { id:7, name:'Zentara Medical', acronym:'ZNT', city:'Tokyo', country:'Japan', contact:'Dr. Kenji Yamamoto', email:'k.yamamoto@zentara.jp', phone:'+81-3-555-0707', address:'2-1-1 Marunouchi, Chiyoda-ku, Tokyo', status:'Active', projects:1 },
 ];
 function saveSponsors() { localStorage.setItem('ctms_sponsors', JSON.stringify(sponsors)); }
 
@@ -1451,6 +1594,7 @@ new Chart(document.getElementById('chart-dept'), {
 });
 
 // Monthly Revenue Trend (line)
+if (document.getElementById('chart-revenue')) {
 new Chart(document.getElementById('chart-revenue'), {
   type: 'bar',
   data: {
@@ -1468,8 +1612,10 @@ new Chart(document.getElementById('chart-revenue'), {
     }
   }
 });
+}
 
 // Milestone Payment Status (stacked bar)
+if (document.getElementById('chart-milestone-status')) {
 new Chart(document.getElementById('chart-milestone-status'), {
   type: 'bar',
   data: {
@@ -1490,15 +1636,16 @@ new Chart(document.getElementById('chart-milestone-status'), {
     }
   }
 });
+}
 
 // ─── INVESTIGATOR DATA ────────────────────────────────────
 let investigators = JSON.parse(localStorage.getItem('ctms_investigators') || 'null') || [
-  { id:1, name:'Dr. Ji-Won Park', specialty:'Regulatory Medicine', institution:'BNPLAB Co., Ltd.', country:'South Korea', email:'j.park@absology.co.kr', phone:'+82-2-555-8210', role:'Principal Investigator', project:'ABSO-25002' },
-  { id:2, name:'Dr. Sung Hee Park', specialty:'Clinical Research', institution:'BNPLAB Co., Ltd.', country:'South Korea', email:'shpark@bnplab.kr', phone:'+82-2-555-0000', role:'Sub-Investigator', project:'BNPLAB-26001' },
-  { id:3, name:'Dr. Michael Chen', specialty:'Neurology', institution:'Stanford Medical Center', country:'United States', email:'m.chen@stanford.edu', phone:'+1-650-723-0000', role:'Principal Investigator', project:'EPX-25001' },
-  { id:4, name:'Dr. Sarah Williams', specialty:'Cardiology', institution:'Johns Hopkins Hospital', country:'United States', email:'s.williams@jhu.edu', phone:'+1-410-955-0000', role:'Principal Investigator', project:'DMCA-25001' },
-  { id:5, name:'Dr. Marco Rossi', specialty:'Pulmonology', institution:'Università di Parma', country:'Italy', email:'m.rossi@unipr.it', phone:'+39-0521-000000', role:'Co-Investigator', project:'CHIESI-24001' },
-  { id:6, name:'Dr. Yuki Tanaka', specialty:'Biostatistics', institution:'Target Health', country:'United States', email:'y.tanaka@targethealth.com', phone:'+1-212-681-2100', role:'Sub-Investigator', project:'ABSO-25002' },
+  { id:1, name:'Dr. Rachel Monroe', specialty:'Neurology', institution:'Greenfield Medical Center', country:'United States', email:'r.monroe@greenfield.org', phone:'+1-617-555-1001', role:'Principal Investigator', project:'NXP-25001' },
+  { id:2, name:'Dr. Sung-Jin Lim', specialty:'Cardiology', institution:'Hanwoo University Hospital', country:'South Korea', email:'sj.lim@hanwoo.ac.kr', phone:'+82-2-555-2002', role:'Principal Investigator', project:'VLX-26001' },
+  { id:3, name:'Dr. Claire Dubois', specialty:'Pulmonology', institution:'Institut Médical de Lyon', country:'France', email:'c.dubois@iml.fr', phone:'+33-4-555-3003', role:'Sub-Investigator', project:'KLN-24001' },
+  { id:4, name:'Dr. Marcus Webb', specialty:'Oncology', institution:'Northbridge Cancer Institute', country:'United States', email:'m.webb@northbridge.org', phone:'+1-312-555-4004', role:'Principal Investigator', project:'ORX-25001' },
+  { id:5, name:'Dr. Aiko Taniguchi', specialty:'Biostatistics', institution:'Zentara Research Institute', country:'Japan', email:'a.taniguchi@zentara.jp', phone:'+81-3-555-5005', role:'Co-Investigator', project:'ZNT-25001' },
+  { id:6, name:'Dr. Thomas Brauer', specialty:'Regulatory Medicine', institution:'Klinova AG', country:'Switzerland', email:'t.brauer@klinova.ch', phone:'+41-61-555-6006', role:'Sub-Investigator', project:'KLN-24001' },
 ];
 function saveInvestigators() { localStorage.setItem('ctms_investigators', JSON.stringify(investigators)); }
 
@@ -1640,10 +1787,10 @@ document.getElementById('inv-modal').addEventListener('click', function(e) { if(
 
 // ─── IRB/IEC DATA ─────────────────────────────────────────
 let irbList = JSON.parse(localStorage.getItem('ctms_irb') || 'null') || [
-  { id:1, name:'Western IRB (WIRB)', chairperson:'Dr. Angela Foster', contact:'John Kim', institution:'Western IRB', city:'Puyallup', country:'United States', email:'jkim@wirb.com', phone:'+1-360-252-2500' },
-  { id:2, name:'Johns Hopkins IRB', chairperson:'Dr. Richard Kass', contact:'Sarah Lee', institution:'Johns Hopkins University', city:'Baltimore', country:'United States', email:'sarah.lee@jhu.edu', phone:'+1-410-516-0000' },
-  { id:3, name:'Seoul National University IRB', chairperson:'Dr. Kim Hyun-Soo', contact:'Park Ji-Young', institution:'Seoul National University Hospital', city:'Seoul', country:'South Korea', email:'irb@snuh.org', phone:'+82-2-2072-0000' },
-  { id:4, name:'Comitato Etico Parma', chairperson:'Prof. Luigi Ferri', contact:'Maria Rossi', institution:'Università di Parma', city:'Parma', country:'Italy', email:'comitato.etico@unipr.it', phone:'+39-0521-033-000' },
+  { id:1, name:'Clearview Ethics Board', chairperson:'Dr. Patricia Holden', contact:'Mr. Steven Cole', institution:'Clearview Research Institute', city:'Boston', country:'United States', email:'s.cole@clearview-irb.org', phone:'+1-617-555-7001' },
+  { id:2, name:'Midland Independent Ethics Committee', chairperson:'Dr. Robert Stein', contact:'Ms. Angela Park', institution:'Midland University Medical School', city:'Chicago', country:'United States', email:'a.park@midland-iec.org', phone:'+1-312-555-7002' },
+  { id:3, name:'Hanwoo University IRB', chairperson:'Dr. Choi Yoon-Seok', contact:'Mr. Lee Jae-Won', institution:'Hanwoo University Hospital', city:'Seoul', country:'South Korea', email:'irb@hanwoo.ac.kr', phone:'+82-2-555-7003' },
+  { id:4, name:'Comité d\'Éthique Rhône-Alpes', chairperson:'Prof. Henri Garnier', contact:'Dr. Sophie Blanc', institution:'Institut Médical de Lyon', city:'Lyon', country:'France', email:'comite@iml-ethique.fr', phone:'+33-4-555-7004' },
 ];
 function saveIRB() { localStorage.setItem('ctms_irb', JSON.stringify(irbList)); }
 
@@ -1733,6 +1880,9 @@ function saveIRBRecord() {
 }
 
 document.getElementById('irb-modal').addEventListener('click', function(e) { if(e.target===this) closeIRBModal(); });
+
+// ─── INIT ─────────────────────────────────────────────────
+initDashFilter();
 </script>
 </body>
 </html>
