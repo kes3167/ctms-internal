@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTMS — Proposal Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #185FA5; --blue-mid: #378ADD; --blue-light: #E6F1FB;
+    --green: #3B6D11; --green-light: #EAF3DE; --green-mid: #639922;
+    --amber: #854F0B; --amber-light: #FAEEDA;
+    --red: #A32D2D; --red-light: #FCEBEB;
+    --gray: #5F5E5A; --gray-light: #F1EFE8;
+    --bg: #F5F4F0; --surface: #FFFFFF;
+    --surface2: #F1EFE8; --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.05);
+    --text: #1a1a18; --text2: #6b6b67; --text3: #9b9b96;
+    --radius: 12px; --radius-sm: 8px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+  /* NAV */
+  .nav { position: sticky; top: 0; z-index: 200; background: var(--surface); border-bottom: 1px solid var(--border); height: 56px; display: flex; align-items: center; padding: 0 2rem; gap: 10px; }
+  .nav-logo { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; color: var(--text); text-decoration: none; }
+  .nav-logo-mark { width: 28px; height: 28px; background: var(--blue); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .nav-logo-mark i { color: white; font-size: 15px; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+  /* LAYOUT */
+  .page { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+
+  /* STEP BAR */
+  .step-bar { display: flex; align-items: center; margin-bottom: 2.5rem; }
+  .step-item { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text3); white-space: nowrap; }
+  .step-item.active { color: var(--text); font-weight: 500; }
+  .step-item.done { color: var(--green); }
+  .step-num { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; background: var(--surface); flex-shrink: 0; }
+  .step-item.active .step-num { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .step-item.done .step-num { background: var(--green-light); color: var(--green); border-color: rgba(59,109,17,.2); }
+  .step-line { flex: 1; height: 1px; background: var(--border2); margin: 0 12px; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px; }
+  .card-title i { font-size: 17px; color: var(--blue); }
+
+  /* UPLOAD */
+  .upload-zone { border: 1.5px dashed var(--border); border-radius: var(--radius); padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--blue-mid); background: var(--blue-light); }
+  .upload-zone i { font-size: 42px; color: var(--text3); display: block; margin-bottom: 1rem; }
+  .upload-title { font-size: 15px; font-weight: 500; margin-bottom: .4rem; }
+  .upload-sub { font-size: 12px; color: var(--text3); }
+  .file-chip { display: none; align-items: center; gap: 10px; margin-top: 1rem; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius-sm); font-size: 13px; border: 1px solid var(--border2); }
+
+  /* LOADING */
+  .loading-card { display: none; }
+  .loading-bar { height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-top: .75rem; }
+  .loading-fill { height: 100%; width: 0%; background: var(--blue); border-radius: 99px; transition: width .6s ease; }
+  .loading-steps { display: flex; flex-direction: column; gap: 6px; margin-top: 1rem; }
+  .loading-step { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text3); }
+  .loading-step.active { color: var(--text2); }
+  .loading-step.done { color: var(--green); }
+  .loading-step i { font-size: 14px; width: 16px; }
+
+  /* BADGE */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-blue { background: var(--blue-light); color: var(--blue); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+  .badge-amber { background: var(--amber-light); color: var(--amber); }
+  .badge-gray { background: var(--gray-light); color: var(--gray); }
+  .ai-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; font-size: 11px; background: var(--blue-light); color: var(--blue); }
+
+  /* FORM */
+  .field-row { display: grid; gap: 12px; margin-bottom: 14px; }
+  .field-row.col2 { grid-template-columns: 1fr 1fr; }
+  .field-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; }
+  .field input, .field textarea, .field select { font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 11px; background: var(--surface); color: var(--text); outline: none; transition: border-color .12s; resize: none; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(55,138,221,.1); }
+  .field input.ai-filled { border-color: rgba(24,95,165,.3); background: var(--blue-light); }
+
+  /* MILESTONES */
+  .ms-head { display: grid; grid-template-columns: 2.5fr 1.1fr 1.3fr 36px; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border2); margin-bottom: 4px; }
+  .ms-head span { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; }
+  .ms-row { display: grid; grid-template-columns: 2.5fr 1.1fr 1.3fr 36px; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border2); }
+  .ms-row:last-child { border-bottom: none; }
+  .ms-row input { font-family: 'DM Sans', sans-serif; font-size: 13px; border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 6px 9px; background: var(--surface); color: var(--text); outline: none; width: 100%; transition: border-color .12s; }
+  .ms-row input:focus { border-color: var(--blue-mid); }
+  .ms-row input.ai-filled { border-color: rgba(24,95,165,.3); background: var(--blue-light); }
+  .del-btn { width: 30px; height: 30px; border-radius: var(--radius-sm); background: none; border: none; cursor: pointer; color: var(--text3); display: flex; align-items: center; justify-content: center; transition: background .12s, color .12s; font-size: 16px; }
+  .del-btn:hover { background: var(--red-light); color: var(--red); }
+  .total-row { display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding-top: 14px; border-top: 1px solid var(--border2); margin-top: 8px; }
+  .total-label { font-size: 13px; color: var(--text2); }
+  .total-amount { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); cursor: pointer; transition: background .12s; }
+  .btn:hover { background: var(--surface2); }
+  .btn-primary { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .btn-primary:hover { opacity: .88; }
+  .btn-primary:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-sm { padding: 5px 13px; font-size: 12px; }
+  .section-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; }
+
+  /* REVIEW */
+  .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 1rem; }
+  .metric { background: var(--surface2); border-radius: var(--radius-sm); padding: 1rem 1.25rem; }
+  .metric-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .metric-val { font-size: 18px; font-weight: 600; color: var(--text); }
+  .metric-val.mono { font-family: 'DM Mono', monospace; }
+  .review-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border2); }
+  .review-row:last-child { border-bottom: none; }
+  .review-name { font-size: 13px; font-weight: 500; }
+  .review-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .review-amount { font-size: 14px; font-weight: 600; font-family: 'DM Mono', monospace; }
+
+  /* SUCCESS */
+  .success-banner { background: var(--green-light); border: 1px solid rgba(59,109,17,.15); border-radius: var(--radius); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem; }
+  .success-banner i { font-size: 22px; color: var(--green); flex-shrink: 0; }
+
+  /* PROJECT LIST */
+  .proj-list { display: flex; flex-direction: column; gap: 10px; }
+  .proj-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; cursor: pointer; transition: box-shadow .15s, transform .1s; display: flex; align-items: center; gap: 1rem; }
+  .proj-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); transform: translateY(-1px); }
+  .proj-card-info { flex: 1; min-width: 0; }
+  .proj-card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .proj-card-meta { font-size: 12px; color: var(--text2); margin-top: 3px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .proj-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .prog-wrap { width: 120px; }
+  .prog-bar { height: 5px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 99px; }
+
+  /* STEP VISIBILITY */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ERROR */
+  .error-box { background: var(--red-light); border: 1px solid rgba(163,45,45,.15); border-radius: var(--radius-sm); padding: .875rem 1rem; font-size: 13px; color: var(--red); display: flex; align-items: flex-start; gap: 8px; margin-bottom: 1rem; }
+
+  /* SAVED PROJECTS PAGE */
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem; }
+  .page-title { font-size: 22px; font-weight: 600; }
+  .page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+  .empty-state i { font-size: 48px; display: block; margin-bottom: 1rem; }
+  .empty-state p { font-size: 14px; margin-bottom: 1.25rem; }
+
+  @media (max-width: 640px) {
+    .field-row.col2, .field-row.col3 { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+    .step-item span { display: none; }
+    .ms-head, .ms-row { grid-template-columns: 1fr 1fr 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-logo" href="#" onclick="showView('projects');return false;">
+    <div class="nav-logo-mark"><i class="ti ti-building-hospital"></i></div>
+    Target Health CTMS
+  </a>
+  <div id="nav-breadcrumb" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text3)"></div>
+  <div class="nav-right">
+    <button class="btn btn-sm btn-primary" onclick="startNewProposal()"><i class="ti ti-plus"></i> New proposal</button>
+  </div>
+</nav>
+
+<!-- ─── VIEW: PROJECTS LIST ─── -->
+<div class="view active" id="view-projects">
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Projects</div>
+        <div class="page-sub">All proposals saved to CTMS</div>
+      </div>
+    </div>
+    <div class="proj-list" id="proj-list">
+      <div class="empty-state">
+        <i class="ti ti-folder-open"></i>
+        <p>No projects yet. Upload a proposal PDF to get started.</p>
+        <button class="btn btn-primary" onclick="startNewProposal()"><i class="ti ti-plus"></i> New proposal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── VIEW: PROPOSAL WORKFLOW ─── -->
+<div class="view" id="view-workflow">
+  <div class="page">
+    <div class="step-bar">
+      <div class="step-item active" id="si-1"><div class="step-num">1</div><span>Upload PDF</span></div>
+      <div class="step-line"></div>
+      <div class="step-item" id="si-2"><div class="step-num">2</div><span>Essential documents</span></div>
+      <div class="step-line"></div>
+      <div class="step-item" id="si-3"><div class="step-num">3</div><span>Payment milestones</span></div>
+      <div class="step-line"></div>
+      <div class="step-item" id="si-4"><div class="step-num">4</div><span>Review & save</span></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div id="step-1">
+      <div class="card">
+        <div class="card-title"><i class="ti ti-file-type-pdf"></i> Upload proposal PDF</div>
+        <div class="upload-zone" id="upload-zone"
+          onclick="document.getElementById('file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleDrop(event)">
+          <i class="ti ti-cloud-upload"></i>
+          <div class="upload-title">Drop your proposal PDF here</div>
+          <div class="upload-sub" style="margin-top:.3rem">or click to browse · PDF up to 50MB</div>
+        </div>
+        <input type="file" id="file-input" accept=".pdf" style="display:none" onchange="handleFile(this)">
+        <div class="file-chip" id="file-chip">
+          <i class="ti ti-file-type-pdf" style="font-size:18px;color:var(--red)"></i>
+          <span id="file-name" style="flex:1;font-weight:500"></span>
+          <span class="badge badge-gray" id="file-size"></span>
+          <button class="btn btn-sm" onclick="clearFile(event)"><i class="ti ti-x"></i></button>
+        </div>
+      </div>
+
+      <div class="card loading-card" id="loading-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:.5rem">
+          <i class="ti ti-sparkles" style="color:var(--blue);font-size:18px"></i>
+          <span style="font-size:14px;font-weight:500">AI is reading your proposal...</span>
+        </div>
+        <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+        <div class="loading-steps" id="loading-steps">
+          <div class="loading-step" id="ls-1"><i class="ti ti-loader"></i> Reading PDF structure</div>
+          <div class="loading-step" id="ls-2"><i class="ti ti-loader"></i> Extracting sponsor information</div>
+          <div class="loading-step" id="ls-3"><i class="ti ti-loader"></i> Identifying project scope</div>
+          <div class="loading-step" id="ls-4"><i class="ti ti-loader"></i> Parsing payment milestones</div>
+          <div class="loading-step" id="ls-5"><i class="ti ti-loader"></i> Validating extracted data</div>
+        </div>
+      </div>
+
+      <div id="error-box" class="error-box" style="display:none">
+        <i class="ti ti-alert-circle" style="font-size:17px;flex-shrink:0;margin-top:1px"></i>
+        <span id="error-msg"></span>
+      </div>
+
+      <div class="section-actions">
+        <button class="btn" onclick="showView('projects')"><i class="ti ti-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" id="extract-btn" disabled onclick="extractWithAI()">
+          <i class="ti ti-sparkles"></i> Extract with AI
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step-2" style="display:none">
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-building"></i> Sponsor information
+          <span class="ai-tag" id="ai-tag-2"><i class="ti ti-sparkles" style="font-size:11px"></i> AI extracted</span>
+        </div>
+        <div class="field-row col2">
+          <div class="field"><label>Sponsor name</label><input id="f-sponsor" placeholder="e.g. Absology Co., Ltd."></div>
+          <div class="field"><label>Contact person</label><input id="f-contact" placeholder="e.g. Dr. Ji-Won Park"></div>
+        </div>
+        <div class="field-row col3">
+          <div class="field"><label>Email</label><input id="f-email" placeholder="contact@sponsor.com"></div>
+          <div class="field"><label>Phone</label><input id="f-phone" placeholder="+1-000-000-0000"></div>
+          <div class="field"><label>Country</label><input id="f-country" placeholder="e.g. United States"></div>
+        </div>
+        <div class="field"><label>Address</label><textarea id="f-address" rows="2" placeholder="Full address"></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-clipboard-list"></i> Project scope
+          <span class="ai-tag"><i class="ti ti-sparkles" style="font-size:11px"></i> AI extracted</span>
+        </div>
+        <div class="field-row col2">
+          <div class="field"><label>Project title</label><input id="f-title" placeholder="e.g. Phase I/II Clinical Study"></div>
+          <div class="field"><label>Indication</label><input id="f-indication" placeholder="e.g. Oncology"></div>
+        </div>
+        <div class="field-row col3">
+          <div class="field"><label>Study phase</label>
+            <select id="f-phase">
+              <option value="">— Select —</option>
+              <option>Pre-IND</option><option>Phase I</option><option>Phase I/II</option>
+              <option>Phase II</option><option>Phase III</option><option>Phase IV</option><option>NDA/BLA</option>
+            </select>
+          </div>
+          <div class="field"><label>Start date</label><input type="date" id="f-start"></div>
+          <div class="field"><label>End date</label><input type="date" id="f-end"></div>
+        </div>
+        <div class="field"><label>Scope summary</label><textarea id="f-scope" rows="3" placeholder="Brief description of services to be provided..."></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-users"></i> Project assignment</div>
+        <div class="field-row col3">
+          <div class="field"><label>Project manager</label>
+            <select id="f-pm"><option value="">— Select PM —</option><option>Sarah Mitchell</option><option>James O'Brien</option><option>Yuki Tanaka</option><option>Mittal Suthar</option></select>
+          </div>
+          <div class="field"><label>Lead CRA</label>
+            <select id="f-cra"><option value="">— Select CRA —</option><option>Mittal Suthar</option><option>David Chen</option><option>Priya Nair</option></select>
+          </div>
+          <div class="field"><label>Department</label>
+            <select id="f-dept"><option>RO – Regulatory Ops</option><option>RS – Reg Strategy</option><option>DM – Data Management</option><option>SD – Statistics</option><option>QC – Quality Control</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-actions">
+        <button class="btn" onclick="goStep(1)"><i class="ti ti-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="goStep(3)">Continue to milestones <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step-3" style="display:none">
+      <div class="card">
+        <div class="card-title">
+          <i class="ti ti-currency-dollar"></i> Payment milestones
+          <span class="ai-tag" id="ai-tag-3"><i class="ti ti-sparkles" style="font-size:11px"></i> AI extracted</span>
+        </div>
+        <div class="ms-head">
+          <span>Milestone</span><span>Due date</span><span>Amount (USD)</span><span></span>
+        </div>
+        <div id="milestone-list"></div>
+        <div class="total-row">
+          <span class="total-label">Total contract value</span>
+          <span class="total-amount" id="total-amount">$0</span>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn btn-sm" onclick="addMilestone()"><i class="ti ti-plus"></i> Add milestone</button>
+        </div>
+      </div>
+      <div class="section-actions">
+        <button class="btn" onclick="goStep(2)"><i class="ti ti-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" onclick="goStep(4)">Review & save <i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step-4" style="display:none">
+      <div class="success-banner">
+        <i class="ti ti-circle-check"></i>
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--green)">Ready to save</div>
+          <div style="font-size:12px;color:var(--green);opacity:.8">All fields verified. Review before saving to CTMS.</div>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="metric"><div class="metric-label">Sponsor</div><div class="metric-val" id="sum-sponsor" style="font-size:14px;line-height:1.4"></div></div>
+        <div class="metric"><div class="metric-label">Milestones</div><div class="metric-val" id="sum-count"></div></div>
+        <div class="metric"><div class="metric-label">Total value</div><div class="metric-val mono" id="sum-total"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-file-description"></i> Project summary</div>
+        <div class="field-row col2" style="margin-bottom:0">
+          <div class="field"><label>Project title</label><input id="rev-title" readonly style="background:var(--surface2);color:var(--text2)"></div>
+          <div class="field"><label>Contact</label><input id="rev-contact" readonly style="background:var(--surface2);color:var(--text2)"></div>
+        </div>
+        <div class="field-row col3" style="margin-top:12px;margin-bottom:0">
+          <div class="field"><label>Phase</label><input id="rev-phase" readonly style="background:var(--surface2);color:var(--text2)"></div>
+          <div class="field"><label>Start</label><input id="rev-start" readonly style="background:var(--surface2);color:var(--text2)"></div>
+          <div class="field"><label>End</label><input id="rev-end" readonly style="background:var(--surface2);color:var(--text2)"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-receipt"></i> Milestone schedule</div>
+        <div id="review-milestones"></div>
+      </div>
+      <div class="section-actions">
+        <button class="btn" onclick="goStep(3)"><i class="ti ti-arrow-left"></i> Back</button>
+        <button class="btn btn-primary" id="save-btn" onclick="saveToCtms()"><i class="ti ti-device-floppy"></i> Save to CTMS</button>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /view-workflow -->
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+let currentStep = 1;
+let pdfBase64 = null;
+let milestones = [];
+let projects = JSON.parse(localStorage.getItem('ctms_projects') || '[]');
+
+// ─── VIEW SWITCHING ───────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const bc = document.getElementById('nav-breadcrumb');
+  if (name === 'projects') {
+    bc.innerHTML = '';
+    renderProjects();
+  } else if (name === 'workflow') {
+    bc.innerHTML = `<i class="ti ti-chevron-right"></i><a href="#" onclick="showView('projects');return false;" style="color:var(--text2);text-decoration:none">Projects</a><i class="ti ti-chevron-right"></i><span style="color:var(--text);font-weight:500">New proposal</span>`;
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startNewProposal() {
+  resetWorkflow();
+  showView('workflow');
+}
+
+function resetWorkflow() {
+  currentStep = 1; pdfBase64 = null; milestones = [];
+  goStep(1);
+  document.getElementById('file-chip').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  document.getElementById('extract-btn').disabled = true;
+  document.getElementById('loading-card').style.display = 'none';
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('loading-fill').style.width = '0%';
+  ['f-sponsor','f-contact','f-email','f-phone','f-country','f-address',
+   'f-title','f-indication','f-scope'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('ai-filled'); }
+  });
+  ['f-phase','f-start','f-end','f-pm','f-cra','f-dept'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+// ─── STEP NAVIGATION ─────────────────────────────────────
+function goStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('step-' + i).style.display = i === n ? 'block' : 'none';
+  }
+  ['si-1','si-2','si-3','si-4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i + 1 < n) el.classList.add('done');
+    else if (i + 1 === n) el.classList.add('active');
+  });
+  currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 3) renderMilestones();
+  if (n === 4) renderReview();
+}
+
+// ─── FILE HANDLING ────────────────────────────────────────
+function handleFile(input) {
+  if (!input.files[0]) return;
+  loadFile(input.files[0]);
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') loadFile(f);
+}
+function loadFile(f) {
+  document.getElementById('file-name').textContent = f.name;
+  document.getElementById('file-size').textContent = (f.size / 1024).toFixed(0) + ' KB';
+  document.getElementById('file-chip').style.display = 'flex';
+  document.getElementById('extract-btn').disabled = false;
+  document.getElementById('error-box').style.display = 'none';
+  const reader = new FileReader();
+  reader.onload = e => { pdfBase64 = e.target.result.split(',')[1]; };
+  reader.readAsDataURL(f);
+}
+function clearFile(e) {
+  e.stopPropagation();
+  document.getElementById('file-chip').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  document.getElementById('extract-btn').disabled = true;
+  pdfBase64 = null;
+}
+
+// ─── AI EXTRACTION ────────────────────────────────────────
+async function extractWithAI() {
+  if (!pdfBase64) return;
+  document.getElementById('loading-card').style.display = 'block';
+  document.getElementById('extract-btn').disabled = true;
+  document.getElementById('error-box').style.display = 'none';
+
+  // Animate loading steps
+  const steps = [1,2,3,4,5];
+  const fill = document.getElementById('loading-fill');
+  let stepIdx = 0;
+  const stepInterval = setInterval(() => {
+    if (stepIdx > 0) {
+      const prev = document.getElementById('ls-' + stepIdx);
+      prev.classList.remove('active');
+      prev.classList.add('done');
+      prev.querySelector('i').className = 'ti ti-circle-check';
+    }
+    stepIdx++;
+    if (stepIdx <= 5) {
+      const cur = document.getElementById('ls-' + stepIdx);
+      cur.classList.add('active');
+      cur.querySelector('i').className = 'ti ti-loader';
+      fill.style.width = (stepIdx * 18) + '%';
+    }
+  }, 700);
+
+  try {
+    const prompt = `You are a clinical research contract analyst. Extract ALL information from this proposal PDF and return ONLY a valid JSON object with NO markdown, NO explanation, NO backticks.
+
+Return this exact structure:
+{
+  "sponsor": "",
+  "contact": "",
+  "email": "",
+  "phone": "",
+  "country": "",
+  "address": "",
+  "title": "",
+  "indication": "",
+  "phase": "",
+  "startDate": "YYYY-MM-DD",
+  "endDate": "YYYY-MM-DD",
+  "scope": "",
+  "milestones": [
+    { "name": "", "date": "YYYY-MM-DD", "amount": 0 }
+  ]
+}
+
+Rules:
+- phase must be one of: Pre-IND, Phase I, Phase I/II, Phase II, Phase III, Phase IV, NDA/BLA
+- dates must be YYYY-MM-DD format or empty string
+- amount must be a number (no $ sign, no commas)
+- milestones array must contain all payment milestones found
+- If a field is not found, use empty string or 0 for amount
+- Return ONLY the JSON, nothing else`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    clearInterval(stepInterval);
+    fill.style.width = '100%';
+
+    // Mark remaining steps done
+    for (let i = stepIdx; i <= 5; i++) {
+      const el = document.getElementById('ls-' + i);
+      el.classList.remove('active');
+      el.classList.add('done');
+      el.querySelector('i').className = 'ti ti-circle-check';
+    }
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'API error ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content.map(c => c.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const extracted = JSON.parse(clean);
+
+    // Populate fields
+    setTimeout(() => {
+      fillField('f-sponsor', extracted.sponsor);
+      fillField('f-contact', extracted.contact);
+      fillField('f-email', extracted.email);
+      fillField('f-phone', extracted.phone);
+      fillField('f-country', extracted.country);
+      fillField('f-address', extracted.address);
+      fillField('f-title', extracted.title);
+      fillField('f-indication', extracted.indication);
+      fillField('f-scope', extracted.scope);
+      if (extracted.phase) document.getElementById('f-phase').value = extracted.phase;
+      if (extracted.startDate) document.getElementById('f-start').value = extracted.startDate;
+      if (extracted.endDate) document.getElementById('f-end').value = extracted.endDate;
+      milestones = (extracted.milestones || []).map(m => ({
+        name: m.name || '',
+        date: m.date || '',
+        amount: Number(m.amount) || 0
+      }));
+      document.getElementById('loading-card').style.display = 'none';
+      goStep(2);
+    }, 600);
+
+  } catch (err) {
+    clearInterval(stepInterval);
+    document.getElementById('loading-card').style.display = 'none';
+    document.getElementById('extract-btn').disabled = false;
+    document.getElementById('error-box').style.display = 'flex';
+    document.getElementById('error-msg').textContent = 'Extraction failed: ' + err.message + '. Please check your network or try again.';
+    // Reset loading steps
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById('ls-' + i);
+      el.classList.remove('active','done');
+      el.querySelector('i').className = 'ti ti-loader';
+    }
+    document.getElementById('loading-fill').style.width = '0%';
+  }
+}
+
+function fillField(id, value) {
+  const el = document.getElementById(id);
+  if (!el || !value) return;
+  el.value = value;
+  el.classList.add('ai-filled');
+  el.addEventListener('input', () => el.classList.remove('ai-filled'), { once: true });
+}
+
+// ─── MILESTONES ───────────────────────────────────────────
+function renderMilestones() {
+  document.getElementById('milestone-list').innerHTML = milestones.map((m, i) => `
+    <div class="ms-row">
+      <input value="${escHtml(m.name)}" placeholder="Milestone description"
+        oninput="milestones[${i}].name=this.value" class="${m.name ? 'ai-filled' : ''}">
+      <input type="date" value="${m.date || ''}"
+        oninput="milestones[${i}].date=this.value">
+      <input type="number" value="${m.amount || ''}" placeholder="0" min="0" step="100"
+        oninput="milestones[${i}].amount=+this.value;updateTotal()">
+      <button class="del-btn" onclick="removeMilestone(${i})"><i class="ti ti-trash"></i></button>
+    </div>
+  `).join('');
+  updateTotal();
+}
+function updateTotal() {
+  const total = milestones.reduce((s, m) => s + (m.amount || 0), 0);
+  document.getElementById('total-amount').textContent = '$' + total.toLocaleString();
+}
+function addMilestone() {
+  milestones.push({ name: '', date: '', amount: 0 });
+  renderMilestones();
+}
+function removeMilestone(i) {
+  milestones.splice(i, 1);
+  renderMilestones();
+}
+
+// ─── REVIEW ───────────────────────────────────────────────
+function renderReview() {
+  document.getElementById('sum-sponsor').textContent = document.getElementById('f-sponsor').value || '—';
+  document.getElementById('sum-count').textContent = milestones.length;
+  const total = milestones.reduce((s, m) => s + (m.amount || 0), 0);
+  document.getElementById('sum-total').textContent = '$' + total.toLocaleString();
+  document.getElementById('rev-title').value = document.getElementById('f-title').value;
+  document.getElementById('rev-contact').value = document.getElementById('f-contact').value;
+  document.getElementById('rev-phase').value = document.getElementById('f-phase').value;
+  document.getElementById('rev-start').value = document.getElementById('f-start').value;
+  document.getElementById('rev-end').value = document.getElementById('f-end').value;
+  document.getElementById('review-milestones').innerHTML = milestones.length === 0
+    ? '<div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:13px">No milestones added</div>'
+    : milestones.map((m, i) => `
+      <div class="review-row">
+        <div>
+          <div class="review-name">${escHtml(m.name) || '(unnamed)'}</div>
+          <div class="review-date">${m.date ? new Date(m.date + 'T00:00:00').toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'}) : 'No date'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge badge-blue">#${i+1}</span>
+          <span class="review-amount">$${(m.amount||0).toLocaleString()}</span>
+        </div>
+      </div>
+    `).join('');
+}
+
+// ─── SAVE TO CTMS ─────────────────────────────────────────
+function saveToCtms() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Saving...';
+
+  const project = {
+    id: Date.now(),
+    savedAt: new Date().toISOString(),
+    sponsor: document.getElementById('f-sponsor').value,
+    contact: document.getElementById('f-contact').value,
+    email: document.getElementById('f-email').value,
+    phone: document.getElementById('f-phone').value,
+    country: document.getElementById('f-country').value,
+    address: document.getElementById('f-address').value,
+    title: document.getElementById('f-title').value,
+    indication: document.getElementById('f-indication').value,
+    phase: document.getElementById('f-phase').value,
+    startDate: document.getElementById('f-start').value,
+    endDate: document.getElementById('f-end').value,
+    scope: document.getElementById('f-scope').value,
+    pm: document.getElementById('f-pm').value,
+    cra: document.getElementById('f-cra').value,
+    dept: document.getElementById('f-dept').value,
+    milestones: [...milestones],
+    status: 'Active'
+  };
+
+  projects.unshift(project);
+  localStorage.setItem('ctms_projects', JSON.stringify(projects));
+
+  setTimeout(() => {
+    btn.innerHTML = '<i class="ti ti-circle-check"></i> Saved!';
+    btn.style.background = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      showView('projects');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-device-floppy"></i> Save to CTMS';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+    }, 1000);
+  }, 800);
+}
+
+// ─── PROJECTS LIST ────────────────────────────────────────
+function renderProjects() {
+  const list = document.getElementById('proj-list');
+  if (projects.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <i class="ti ti-folder-open"></i>
+      <p>No projects yet. Upload a proposal PDF to get started.</p>
+      <button class="btn btn-primary" onclick="startNewProposal()"><i class="ti ti-plus"></i> New proposal</button>
+    </div>`;
+    return;
+  }
+  list.innerHTML = projects.map(p => {
+    const total = p.milestones.reduce((s, m) => s + (m.amount || 0), 0);
+    const paid = p.milestones.filter(m => m.paid).reduce((s, m) => s + (m.amount || 0), 0);
+    const pct = total > 0 ? Math.round(paid / total * 100) : 0;
+    const saved = new Date(p.savedAt).toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'});
+    return `
+      <div class="proj-card">
+        <div class="proj-card-info">
+          <div class="proj-card-title">${escHtml(p.title) || '(Untitled)'}</div>
+          <div class="proj-card-meta">
+            <span><i class="ti ti-building" style="font-size:12px;vertical-align:-1px"></i> ${escHtml(p.sponsor) || '—'}</span>
+            <span><i class="ti ti-user" style="font-size:12px;vertical-align:-1px"></i> ${escHtml(p.pm) || '—'}</span>
+            <span><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> ${p.startDate || '—'} → ${p.endDate || '—'}</span>
+            <span>Saved ${saved}</span>
+          </div>
+        </div>
+        <div class="proj-card-right">
+          <span class="badge badge-green" style="font-size:11px">${escHtml(p.status)}</span>
+          <span style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace">$${total.toLocaleString()}</span>
+          <div class="prog-wrap">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px">
+              <span>Collected</span><span>${pct}%</span>
+            </div>
+            <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:var(--green-mid)"></div></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── UTILS ───────────────────────────────────────────────
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+renderProjects();
+</script>
+</body>
+</html>
